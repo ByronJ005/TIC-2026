@@ -1,0 +1,156 @@
+# Variables de entorno
+.env
+.env.*
+*.env
+*.env.*
+# Permitir siempre archivos de plantilla / ejemplo
+!.env.example
+!*.env.example
+!**/.env.example
+
+# Archivos de entorno y configuración local
+*.local
+*.development.local
+*.test.local
+*.production.local
+
+# Claves privadas, certificados y tokens
+*.pem
+*.key
+*.crt
+*.cer
+*.pfx
+*.p12
+id_rsa*
+id_ecdsa*
+id_ed25519*
+
+# Credenciales de servicios y cuentas de servicio
+*credentials*.json
+*secret*.json
+service-account*.json
+client_secret*.json
+
+# ------------------------------------------------------------------------------
+# 2. Python / Backend (FastAPI, Alembic, SQLAlchemy)
+# ------------------------------------------------------------------------------
+# Bytecode y compilados
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+bin/
+lib/
+include/
+
+# Paquetes y distribuciones
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Pruebas y cobertura
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+nosetests.xml
+coverage.xml
+*.cover
+
+# Linters y análisis estático
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+.dmypy.json
+dmypy.json
+
+# Bases de datos locales y volcados
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+
+# ------------------------------------------------------------------------------
+# 3. Node.js / Frontend (Vue 3, Vite, Vitest)
+# ------------------------------------------------------------------------------
+# Dependencias
+node_modules/
+**/node_modules/
+
+# Compilación y empaquetado
+frontend/dist/
+frontend/dist-ssr/
+dist/
+dist-ssr/
+
+# Caché de TypeScript, linters y Vite
+*.tsbuildinfo
+.eslintcache
+.vite/
+*.timestamp-*-*.mjs
+
+# Pruebas y capturas
+coverage/
+__screenshots__/
+cypress/videos/
+cypress/screenshots/
+
+# ------------------------------------------------------------------------------
+# 4. Logs y archivos temporales
+# ------------------------------------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+tmp/
+temp/
+
+# ------------------------------------------------------------------------------
+# 5. Editores e IDEs
+# ------------------------------------------------------------------------------
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.sublime-workspace
+*.sublime-project
+
+# ------------------------------------------------------------------------------
+# 6. Archivos del Sistema Operativo
+# ------------------------------------------------------------------------------
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+$RECYCLE.BIN/
