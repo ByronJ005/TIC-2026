@@ -83,7 +83,57 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: str
     email: str
-    role: UserRole
+    roles: list[UserRole]
     is_active: bool
     created_at: datetime
     updated_at: datetime
+
+
+class UserRolesUpdate(BaseModel):
+    roles: list[UserRole]
+
+    @field_validator("roles")
+    @classmethod
+    def validate_roles(cls, v: list[UserRole]) -> list[UserRole]:
+        seen = set()
+        unique_roles = []
+        for r in v:
+            if r not in seen:
+                seen.add(r)
+                unique_roles.append(r)
+        if UserRole.PASAJERO not in seen:
+            unique_roles.append(UserRole.PASAJERO)
+        return unique_roles
+
+
+class UserStatusUpdate(BaseModel):
+    is_active: bool
+
+
+class UserListQuery(BaseModel):
+    page: int = 1
+    size: int = 10
+    search: str = ""
+    include_inactive: bool = False
+
+    @field_validator("page")
+    @classmethod
+    def validate_page(cls, v: int) -> int:
+        if v < 1:
+            raise ValueError("El número de página debe ser mayor o igual a 1")
+        return v
+
+    @field_validator("size")
+    @classmethod
+    def validate_size(cls, v: int) -> int:
+        if v < 1 or v > 100:
+            raise ValueError("El tamaño de página debe estar entre 1 y 100")
+        return v
+
+
+class UserPaginationResponse(BaseModel):
+    items: list[UserResponse]
+    total: int
+    page: int
+    size: int
+    pages: int

@@ -57,9 +57,9 @@ def test_blacklist_blocks_token(client, db_session):
         last_name="Mora",
         email="carlos.mora@example.com",
         hashed_password=hash_password("Pass1234"),
-        role=UserRole.PASAJERO,
         is_active=True,
     )
+    user.roles = [UserRole.PASAJERO]
     user_repo.create(user)
 
     token_jti = "test-jti-uuid-12345"

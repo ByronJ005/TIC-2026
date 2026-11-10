@@ -10,6 +10,7 @@ import {
   type LoginCredentials,
   type RegisterData,
   type User,
+  type UserRole,
 } from '@/services/auth.service'
 import router from '@/router'
 
@@ -38,6 +39,12 @@ export const useAuthStore = defineStore('auth', () => {
   const isInitializing = ref(false)
 
   const isAuthenticated = computed(() => Boolean(token.value))
+  const userRoles = computed<UserRole[]>(() => user.value?.roles || [])
+
+  function hasRole(...roles: UserRole[]): boolean {
+    if (!user.value || !user.value.roles) return false
+    return roles.some((r) => user.value!.roles.includes(r))
+  }
 
   function setToken(newToken: string | null) {
     token.value = newToken
@@ -155,6 +162,8 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     user,
     isAuthenticated,
+    userRoles,
+    hasRole,
     isInitializing,
     sessionExpiredMessage,
     register,

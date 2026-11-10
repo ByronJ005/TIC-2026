@@ -1,6 +1,7 @@
-from typing import Optional
-from sqlalchemy.orm import Session
-from src.models.user import DocumentType, User
+from typing import List, Optional, Tuple
+from sqlalchemy import or_
+from sqlalchemy.orm import Session, selectinload
+from src.models.user import DocumentType, User, UserRole
 
 
 class UserRepository:
@@ -8,16 +9,27 @@ class UserRepository:
         self.db = db
 
     def get_by_id(self, user_id: int) -> Optional[User]:
-        return self.db.query(User).filter(User.id == user_id).first()
+        return (
+            self.db.query(User)
+            .options(selectinload(User.role_associations))
+            .filter(User.id == user_id)
+            .first()
+        )
 
     def get_by_email(self, email: str) -> Optional[User]:
-        return self.db.query(User).filter(User.email == email.strip().lower()).first()
+        return (
+            self.db.query(User)
+            .options(selectinload(User.role_associations))
+            .filter(User.email == email.strip().lower())
+            .first()
+        )
 
     def get_by_document(
         self, document_type: DocumentType, document_number: str
     ) -> Optional[User]:
         return (
             self.db.query(User)
+            .options(selectinload(User.role_associations))
             .filter(
                 User.document_type == document_type,
                 User.document_number == document_number.strip(),
@@ -30,3 +42,48 @@ class UserRepository:
         self.db.commit()
         self.db.refresh(user)
         return user
+
+    def list_users(
+        self,
+        search: str = "",
+        include_inactive: bool = False,
+        offset: int = 0,
+        limit: int = 10,
+    ) -> Tuple[List[User], int]:
+        query = self.db.query(User).options(selectinload(User.role_associations))
+
+        if not include_inactive:
+            query = query.filter(User.is_active.is_(True))
+
+        cleaned_search = search.strip()
+        if cleaned_search:
+            pattern = f"%{cleaned_search}%"
+            query = query.filter(
+                or_(
+                    User.first_name.ilike(pattern),
+                    User.last_name.ilike(pattern),
+                    User.email.ilike(pattern),
+                )
+            )
+
+        total = query.count()
+        users = (
+            query.order_by(User.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
+        return users, total
+
+    def update_roles(self, user: User, roles: List[UserRole]) -> User:
+        user.roles = roles
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+
+    def update_status(self, user: User, is_active: bool) -> User:
+        user.is_active = is_active
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+

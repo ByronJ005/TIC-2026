@@ -70,7 +70,7 @@ async function handleLogout() {
         <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted text-xs font-medium border border-border">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>{{ authStore.user?.first_name || 'Pasajero' }}</span>
-          <span class="text-muted-foreground">({{ authStore.user?.role || 'PASAJERO' }})</span>
+          <span class="text-muted-foreground">({{ authStore.user?.roles?.join(', ') || 'PASAJERO' }})</span>
         </div>
 
         <!-- Logout Button (triggers confirmation dialog) -->
@@ -130,8 +130,8 @@ async function handleLogout() {
             </div>
 
             <div class="p-3 rounded-xl bg-muted/50 border border-border/50">
-              <dt class="text-xs text-muted-foreground font-medium">Rol del sistema</dt>
-              <dd class="font-semibold mt-0.5 text-primary">{{ authStore.user?.role }}</dd>
+              <dt class="text-xs text-muted-foreground font-medium">Roles del sistema</dt>
+              <dd class="font-semibold mt-0.5 text-primary">{{ authStore.user?.roles?.join(', ') }}</dd>
             </div>
           </dl>
         </div>

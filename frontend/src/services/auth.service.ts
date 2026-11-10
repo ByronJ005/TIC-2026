@@ -4,7 +4,7 @@ export type DocumentType = 'CEDULA' | 'PASAPORTE'
 export type UserRole =
   | 'ADMIN_GENERAL'
   | 'ADMIN_COOPERATIVA'
-  | 'SECRETARIA'
+  | 'SECRETARIA_COOPERATIVA'
   | 'PASAJERO'
 
 export interface User {
@@ -14,7 +14,7 @@ export interface User {
   first_name: string
   last_name: string
   email: string
-  role: UserRole
+  roles: UserRole[]
   is_active: boolean
   created_at: string
   updated_at: string

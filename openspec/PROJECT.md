@@ -20,16 +20,21 @@ Cada módulo puede incluir sus propias funcionalidades de reportes.
 - Crear y administrar cooperativas.
 - Gestionar rutas generales.
 - Gestionar usuarios y permisos.
+- Gestionar los precios generales aplicables a todas las cooperativas.
 
 ### ADMIN_COOPERATIVA
-- Gestionar su cooperativa: buses, asientos, rutas específicas, turnos, precios y tarifas.
+- Gestionar su cooperativa: buses, asientos, rutas específicas, turnos, precios y tarifas específicas.
 - Consultar información de su propia cooperativa.
 - **Restricción clave:** solo puede administrar recursos de su propia cooperativa. Verificar siempre la pertenencia del recurso antes de permitir actualizar, eliminar, modificar o consultar información restringida. Nunca confiar solo en IDs enviados por el frontend.
+
+### SECRETARIA_COOPERATIVA
+-Generar nuevas reservas o actualizar el estado de las existentes a CONFIRMADO una vez recibido el pago en ventanilla.
 
 ### PASAJERO
 - Consultar rutas y horarios.
 - Seleccionar asientos, reservar.
 - Consultar sus propias reservas y actualizar su perfil.
+- **Restricción clave:** El rol "Pasajero" es el rol por defecto del sistema; en la interfaz debe mostrarse bloqueado/deshabilitado (disabled) y seleccionado por defecto, y a nivel de backend nunca debe eliminarse del array o conjunto de roles. Un usuario puede tener asignados simultáneamente varios roles adicionales (ej. Pasajero + Secretaria de Cooperativa).
 
 RBAC: los endpoints deben validar el rol requerido antes de ejecutar operaciones protegidas. Respuesta de autorización incorrecta → HTTP 403.
 
@@ -54,8 +59,8 @@ Cada reserva tiene un tiempo límite para ser retirada y pagada en ventanilla. A
 ```
 DISPONIBLE → RESERVADO
 RESERVADO → EXPIRADO    (venció el plazo sin retiro en ventanilla)
-RESERVADO → CANCELADO   (cancelada por el pasajero)
-RESERVADO → FINALIZADO (se concretó el viaje)
+RESERVADO → CANCELADO   (el pasajero cancela manualmente su reserva)
+RESERVADO → CONFIRMADO (el pasajero se ha acercado a boletería a realizar el pago)
 ```
 
 - `RESERVADO` es el estado final activo dentro del sistema; la compra en ventanilla queda fuera del alcance del prototipo.
