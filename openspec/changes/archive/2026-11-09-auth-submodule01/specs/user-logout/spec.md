@@ -1,10 +1,21 @@
 ## ADDED Requirements
 
+### Requirement: Logout confirmation dialog
+The system SHALL present a confirmation dialog to the authenticated user upon clicking "Cerrar sesión", asking whether they are sure they want to end their session, before performing any token invalidation.
+
+#### Scenario: User confirms logout dialog
+- **WHEN** an authenticated user clicks "Cerrar sesión" and confirms the action in the dialog
+- **THEN** the system blacklists the JWT (by jti), clears the token from localStorage, and redirects to `/login`
+
+#### Scenario: User cancels logout dialog
+- **WHEN** an authenticated user clicks "Cerrar sesión" and cancels the dialog
+- **THEN** the system closes the dialog, retains active session state, and keeps the user on the current page
+
 ### Requirement: Manual logout
-The system SHALL allow any authenticated user to close their active session by clicking "Cerrar sesión" from their profile menu. Upon logout, the system SHALL add the token's jti to the blacklist table, remove the token from client storage, and redirect to the login page.
+The system SHALL allow any authenticated user to close their active session by clicking "Cerrar sesión" from their profile menu and confirming the action. Upon logout, the system SHALL add the token's jti to the blacklist table, remove the token from client storage, and redirect to the login page.
 
 #### Scenario: Successful manual logout
-- **WHEN** an authenticated user clicks "Cerrar sesión"
+- **WHEN** an authenticated user clicks "Cerrar sesión" and confirms
 - **THEN** the system blacklists the JWT (by jti), clears the token from localStorage, and redirects to `/login`
 
 ### Requirement: Back button restriction after logout

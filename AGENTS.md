@@ -1,7 +1,7 @@
 # AGENTS.md — BoletoYa
 
 Instrucciones para agentes de IA trabajando en este repositorio.
-Contexto de dominio (roles, reglas de negocio, UI/UX) está en `PROJECT.md` — léelo también antes de implementar.
+Contexto de dominio (roles, reglas de negocio) está en `PROJECT.md` — léelo también antes de implementar.
 
 ## Stack
 
@@ -78,6 +78,8 @@ El proyecto utiliza shadcn-vue y el tema Soft Pop generado con tweakcn:
 - No utilices colores hardcodeados (`hex`, `rgb`, `hsl`, `oklch`, etc.) cuando exista un token semántico equivalente.
 - Prefiere las clases semánticas de Tailwind proporcionadas por el tema, por ejemplo: `bg-primary`, `text-primary-foreground`, `bg-background`, `text-foreground`, `border-border`, etc.
 - Mantén la compatibilidad con los modos claro y oscuro al implementar nuevos componentes.
+- **Prohibido el uso de emojis en la interfaz gráfica:** No utilizar emojis como iconos, viñetas o elementos visuales.
+- **Iconografía oficial:** Utilizar exclusivamente la librería `@lucide/vue` (Lucide Icons) para toda la iconografía, aplicando clases semánticas de tamaño y color (`w-4 h-4 text-muted-foreground`, etc.) acordes al diseño.
 ## Clean Code — 9 principios
  
 ### 1. Nombres significativos

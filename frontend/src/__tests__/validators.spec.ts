@@ -74,15 +74,22 @@ describe('useFormValidation Composable', () => {
   })
 
   describe('validatePassport', () => {
-    it('should accept valid alphanumeric passports (6-20 chars)', () => {
-      const valid = ['A1234567', 'PASS123456', 'EC987654321', '12345678']
+    it('should accept valid strict alphanumeric passports (letters and digits, 6-20 chars)', () => {
+      const valid = ['A1234567', 'PASS123456', 'EC987654321']
       valid.forEach((p) => {
         expect(validatePassport(p).isValid).toBe(true)
       })
     })
 
-    it('should reject invalid passports', () => {
-      const invalid = ['A1234', 'A'.repeat(21), 'PASS-1234', 'PASS@123']
+    it('should reject invalid passports (letters only, numbers only, special chars, length)', () => {
+      const invalid = [
+        'AAOOOOKKK', // letters only rejected
+        '12345678',  // digits only rejected
+        'A1234',     // < 6 chars
+        'A1' + 'A'.repeat(19), // > 20 chars
+        'PASS-1234',
+        'PASS@123',
+      ]
       invalid.forEach((p) => {
         const res = validatePassport(p)
         expect(res.isValid).toBe(false)

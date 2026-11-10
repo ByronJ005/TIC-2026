@@ -105,3 +105,13 @@
 - [x] 14.5 Test `test_auth_store_login`: verificar que el store actualiza user, token, isAuthenticated tras login exitoso (mock de API)
 - [x] 14.6 Test `test_auth_store_logout`: verificar que el store limpia token, user, isAuthenticated y remueve de localStorage
 - [x] 14.7 Test `test_navigation_guard`: ruta protegida sin token redirige a /login, ruta guest con token redirige a /dashboard
+
+## 15. Mejoras y correcciones
+
+- [x] 15.1 Backend: Actualizar validador de pasaporte en `backend/src/schemas/validators.py` para exigir alfanumérico estricto (mínimo 1 letra y 1 dígito, 6-20 caracteres: `^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9]{6,20}$`) y actualizar tests en `backend/tests/`
+- [x] 15.2 Backend: Actualizar mensaje de error de contraseña en `backend/src/schemas/` a "La contraseña debe contener al menos 8 caracteres e incluir una mayúscula, minúscula, número y carácter especial opcional" y actualizar tests en backend
+- [x] 15.3 Frontend: Actualizar validador de pasaporte en `frontend/src/composables/useFormValidation.ts` con el regex alfanumérico estricto y actualizar tests en `frontend/src/composables/__tests__/`
+- [x] 15.4 Frontend: Actualizar mensaje de error de contraseña en `frontend/src/composables/useFormValidation.ts` y actualizar tests en frontend
+- [x] 15.5 Frontend: Implementar diálogo de confirmación interactivo antes de cerrar sesión en `frontend/src/views/DashboardView.vue` (modal/AlertDialog con confirmación y cancelación)
+- [x] 15.6 Frontend: Reemplazar todos los emojis en las vistas de la interfaz (`RegisterView.vue`, `LoginView.vue`, `DashboardView.vue`) por iconos vectoriales de `@lucide/vue` acordes al tema Soft Pop
+- [x] 15.7 Verificación integral: Ejecutar `pytest` y `npm run test:unit` para validar que todas las pruebas pasen al 100%

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { AlertCircle, AlertTriangle, Bus, Loader2 } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/auth.store'
 import { useFormValidation } from '@/composables/useFormValidation'
@@ -76,8 +77,8 @@ async function handleLogin() {
     <div class="w-full max-w-md bg-card text-card-foreground rounded-2xl border border-border shadow-xl p-6 sm:p-8 space-y-6">
       <!-- Header -->
       <div class="text-center space-y-2">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary text-primary-foreground shadow-md mb-2 font-bold text-xl">
-          BY
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary text-primary-foreground shadow-md mb-2">
+          <Bus class="w-6 h-6" />
         </div>
         <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
           BoletoYa
@@ -90,20 +91,20 @@ async function handleLogin() {
       <!-- Session Expired Alert -->
       <div
         v-if="sessionExpiredBanner"
-        class="p-3.5 rounded-xl text-sm font-medium bg-amber-500/15 text-amber-900 dark:text-amber-200 border border-amber-500/30 flex items-center gap-2"
+        class="p-3.5 rounded-xl text-sm font-medium bg-amber-500/15 text-amber-900 dark:text-amber-200 border border-amber-500/30 flex items-center gap-2.5"
         role="alert"
       >
-        <span>⚠️</span>
+        <AlertTriangle class="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
         <span>{{ sessionExpiredBanner }}</span>
       </div>
 
       <!-- General Error Alert -->
       <div
         v-if="generalError"
-        class="p-3.5 rounded-xl text-sm font-medium bg-destructive/15 text-destructive border border-destructive/30 flex items-center gap-2"
+        class="p-3.5 rounded-xl text-sm font-medium bg-destructive/15 text-destructive border border-destructive/30 flex items-center gap-2.5"
         role="alert"
       >
-        <span>❌</span>
+        <AlertCircle class="w-4 h-4 shrink-0" />
         <span>{{ generalError }}</span>
       </div>
 
@@ -152,11 +153,11 @@ async function handleLogin() {
         <!-- Submit Button -->
         <Button
           type="submit"
-          class="w-full py-2.5 rounded-xl font-semibold shadow-md transition"
+          class="w-full py-2.5 rounded-xl font-semibold shadow-md transition flex items-center justify-center gap-2"
           :disabled="isLoading"
         >
-          <span v-if="isLoading">Ingresando...</span>
-          <span v-else>Ingresar</span>
+          <Loader2 v-if="isLoading" class="w-4 h-4 animate-spin" />
+          <span>{{ isLoading ? 'Ingresando...' : 'Ingresar' }}</span>
         </Button>
       </form>
 

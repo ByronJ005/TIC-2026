@@ -6,8 +6,8 @@ ERROR_INVALID_DOCUMENT = "El número de documento proporcionado es inválido"
 ERROR_INVALID_NAME = "Los nombres/apellidos proporcionados contienen caracteres inválidos"
 ERROR_INVALID_EMAIL = "Correo electrónico inválido"
 ERROR_INVALID_PASSWORD = (
-    "La contraseña debe incluir al menos una mayúscula, minúscula, número "
-    "y carácter especial opcional"
+    "La contraseña debe contener al menos 8 caracteres e incluir una mayúscula, "
+    "minúscula, número y carácter especial opcional"
 )
 ERROR_REQUIRED_FIELD = "Este campo es requerido"
 
@@ -15,7 +15,7 @@ NAME_REGEX = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s'-]{1,50}$")
 EMAIL_REGEX = re.compile(
     r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 )
-PASSPORT_REGEX = re.compile(r"^[a-zA-Z0-9]{6,20}$")
+PASSPORT_REGEX = re.compile(r"^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9]{6,20}$")
 
 
 def validate_ecuadorian_cedula(cedula: str) -> bool:
@@ -48,7 +48,7 @@ def validate_ecuadorian_cedula(cedula: str) -> bool:
 
 
 def validate_passport(passport: str) -> bool:
-    """Validates passport format (alphanumeric, 6-20 characters)."""
+    """Validates passport format (strictly alphanumeric with letters and digits, 6-20 characters)."""
     if not isinstance(passport, str):
         return False
     return bool(PASSPORT_REGEX.match(passport.strip()))

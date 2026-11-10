@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { AlertCircle, Bus, CheckCircle, Loader2 } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/auth.store'
 import { useFormValidation } from '@/composables/useFormValidation'
@@ -113,8 +114,8 @@ async function handleRegister() {
     <div class="w-full max-w-lg bg-card text-card-foreground rounded-2xl border border-border shadow-xl p-6 sm:p-8 space-y-6">
       <!-- Header -->
       <div class="text-center space-y-2">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary text-primary-foreground shadow-md mb-2 font-bold text-xl">
-          BY
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary text-primary-foreground shadow-md mb-2">
+          <Bus class="w-6 h-6" />
         </div>
         <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
           Crear cuenta en BoletoYa
@@ -130,7 +131,7 @@ async function handleRegister() {
         class="p-4 rounded-xl text-sm font-medium bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/30 flex items-center gap-3 animate-in fade-in"
         role="status"
       >
-        <span class="text-lg">✅</span>
+        <CheckCircle class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
         <div>
           <p class="font-semibold">{{ successMessage }}</p>
           <p class="text-xs opacity-90">Redirigiendo a inicio de sesión...</p>
@@ -140,10 +141,10 @@ async function handleRegister() {
       <!-- General Error Alert -->
       <div
         v-if="generalError"
-        class="p-3.5 rounded-xl text-sm font-medium bg-destructive/15 text-destructive border border-destructive/30 flex items-center gap-2"
+        class="p-3.5 rounded-xl text-sm font-medium bg-destructive/15 text-destructive border border-destructive/30 flex items-center gap-2.5"
         role="alert"
       >
-        <span>❌</span>
+        <AlertCircle class="w-4 h-4 shrink-0" />
         <span>{{ generalError }}</span>
       </div>
 
@@ -174,7 +175,7 @@ async function handleRegister() {
               id="doc-number"
               v-model="form.document_number"
               type="text"
-              :placeholder="form.document_type === 'CEDULA' ? 'Ej. 1710034065' : 'Ej. PASS123456'"
+              :placeholder="form.document_type === 'CEDULA' ? 'Ej. 1710034065' : 'Ej. A1234567'"
               class="w-full px-3.5 py-2.5 rounded-xl bg-background border border-input text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring transition shadow-sm"
               :class="{ 'border-destructive focus:ring-destructive': errors.document_number }"
             />
@@ -262,11 +263,11 @@ async function handleRegister() {
         <!-- Submit Button -->
         <Button
           type="submit"
-          class="w-full py-2.5 rounded-xl font-semibold shadow-md transition mt-2"
+          class="w-full py-2.5 rounded-xl font-semibold shadow-md transition mt-2 flex items-center justify-center gap-2"
           :disabled="isLoading || Boolean(successMessage)"
         >
-          <span v-if="isLoading">Procesando...</span>
-          <span v-else>Crear cuenta</span>
+          <Loader2 v-if="isLoading" class="w-4 h-4 animate-spin" />
+          <span>{{ isLoading ? 'Procesando...' : 'Crear cuenta' }}</span>
         </Button>
       </form>
 

@@ -62,6 +62,7 @@ Este diseño cubre el submódulo 01 de Seguridad: registro, login y logout. Es e
 ### D3: Validaciones duplicadas con constantes bien definidas
 
 **Elección:** Mismas reglas de validación implementadas en Pydantic (backend) y en un composable Vue (frontend). Backend es la autoridad final.
+- **Mensaje de contraseña:** Se incluye explícitamente el requisito de longitud: `"La contraseña debe contener al menos 8 caracteres e incluir una mayúscula, minúscula, número y carácter especial opcional"`.
 
 **Alternativas consideradas:**
 - *Schema compartido (JSON Schema):* DRY pero complejidad alta para generar validators en ambos lenguajes.
@@ -69,9 +70,11 @@ Este diseño cubre el submódulo 01 de Seguridad: registro, login y logout. Es e
 
 **Rationale:** Las validaciones frontend son para UX (feedback inmediato). El backend siempre valida (AGENTS.md: "no confiar en validaciones hechas solo en el frontend"). Las reglas están bien definidas y son estables, el riesgo de divergencia es bajo y se mitiga con tests que cubren los mismos inputs en ambos lados.
 
-### D4: Tipos de documento — Cédula y Pasaporte
+### D4: Tipos de documento — Cédula y Pasaporte Estricto
 
-**Elección:** Enum `CEDULA` | `PASAPORTE`. La cédula se valida con el algoritmo de módulo 10 de la cédula ecuatoriana (10 dígitos). El pasaporte se valida como alfanumérico (6-20 caracteres).
+**Elección:** Enum `CEDULA` | `PASAPORTE`.
+- La cédula se valida con el algoritmo de módulo 10 de la cédula ecuatoriana (10 dígitos).
+- El pasaporte se valida como **alfanumérico estricto** exigiendo al menos una letra y al menos un dígito numérico, entre 6 y 20 caracteres (`^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9]{6,20}$`). Cadenas compuestas únicamente por letras (ej: "AAOOOOKKK") o únicamente por dígitos son explícitamente rechazadas.
 
 ### D5: Registro asigna PASAJERO siempre
 
@@ -113,6 +116,7 @@ backend/src/
 ├── schemas/
 │   ├── __init__.py
 │   ├── user_schemas.py
+│   ├── validators.py
 │   └── auth_schemas.py
 ├── services/
 │   ├── __init__.py
@@ -142,6 +146,14 @@ Tras registro exitoso: mostrar toast "Cuenta creada satisfactoriamente" → redi
 ### D10: Mensajes de error de autenticación
 
 Login con credenciales incorrectas devuelve un mensaje genérico "Credenciales incorrectas" sin revelar si el email existe o no (prevención de user enumeration). Registro con email/documento duplicado sí indica cuál campo está duplicado (es información necesaria para el usuario).
+
+### D11: Confirmación modal para cierre de sesión
+
+El botón "Cerrar sesión" despliega un diálogo confirmatorio accesible (`AlertDialog` de shadcn-vue o modal interactivo) con acciones "Cancelar" y "Cerrar sesión". Previene cierres de sesión involuntarios y brinda feedback de estado mientras se completa la invalidación.
+
+### D12: Iconografía oficial con `@lucide/vue`
+
+En concordancia con `AGENTS.md`, se suprimen completamente los emojis de la interfaz gráfica y se reemplazan por iconos vectoriales semánticos de `@lucide/vue` utilizando estilos y clases acordes al tema Soft Pop (`size-4`, `text-muted-foreground`, `text-primary`, etc.).
 
 ## Risks / Trade-offs
 

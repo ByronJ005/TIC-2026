@@ -1,26 +1,49 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { AlertTriangle, Bus, Loader2, LogOut, ShieldCheck, User } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/auth.store'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const isLoggingOut = ref(false)
+const showLogoutConfirm = ref(false)
 
 onMounted(async () => {
   if (!authStore.user) {
     await authStore.checkAuth()
   }
+  window.addEventListener('keydown', handleKeydown)
 })
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
+
+function handleKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && showLogoutConfirm.value && !isLoggingOut.value) {
+    showLogoutConfirm.value = false
+  }
+}
+
+function openLogoutModal() {
+  showLogoutConfirm.value = true
+}
+
+function cancelLogout() {
+  showLogoutConfirm.value = false
+}
 
 async function handleLogout() {
   isLoggingOut.value = true
   try {
     await authStore.logout()
+    showLogoutConfirm.value = false
     router.push({ name: 'login' })
   } catch {
     // Graceful fallback to login
+    showLogoutConfirm.value = false
     router.push({ name: 'login' })
   } finally {
     isLoggingOut.value = false
@@ -34,7 +57,7 @@ async function handleLogout() {
     <header class="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-xs">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-sm">
-          BY
+          <Bus class="w-5 h-5" />
         </div>
         <div>
           <h1 class="font-bold text-lg leading-tight">BoletoYa</h1>
@@ -50,16 +73,16 @@ async function handleLogout() {
           <span class="text-muted-foreground">({{ authStore.user?.role || 'PASAJERO' }})</span>
         </div>
 
-        <!-- Logout Button -->
+        <!-- Logout Button (triggers confirmation dialog) -->
         <Button
           variant="destructive"
           size="sm"
-          class="rounded-xl gap-1.5 shadow-xs"
+          class="rounded-xl gap-2 shadow-xs cursor-pointer"
           :disabled="isLoggingOut"
-          @click="handleLogout"
+          @click="openLogoutModal"
         >
-          <span>🚪</span>
-          <span>{{ isLoggingOut ? 'Cerrando...' : 'Cerrar sesión' }}</span>
+          <LogOut class="w-4 h-4" />
+          <span>Cerrar sesión</span>
         </Button>
       </div>
     </header>
@@ -85,8 +108,8 @@ async function handleLogout() {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Profile Card -->
         <div class="rounded-2xl bg-card border border-border p-6 shadow-sm space-y-4">
-          <h3 class="text-lg font-bold flex items-center gap-2">
-            <span>👤</span>
+          <h3 class="text-lg font-bold flex items-center gap-2 text-foreground">
+            <User class="w-5 h-5 text-primary" />
             <span>Información del Perfil</span>
           </h3>
 
@@ -115,8 +138,8 @@ async function handleLogout() {
 
         <!-- System Status Card -->
         <div class="rounded-2xl bg-card border border-border p-6 shadow-sm space-y-4">
-          <h3 class="text-lg font-bold flex items-center gap-2">
-            <span>🛡️</span>
+          <h3 class="text-lg font-bold flex items-center gap-2 text-foreground">
+            <ShieldCheck class="w-5 h-5 text-primary" />
             <span>Seguridad de Sesión</span>
           </h3>
           <p class="text-sm text-muted-foreground">
@@ -134,6 +157,55 @@ async function handleLogout() {
         </div>
       </div>
     </main>
+
+    <!-- Logout Confirmation Modal Dialog -->
+    <Teleport to="body">
+      <div
+        v-if="showLogoutConfirm"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs transition-opacity animate-in fade-in"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="logout-dialog-title"
+      >
+        <div class="w-full max-w-md bg-card text-card-foreground rounded-2xl border border-border shadow-2xl p-6 space-y-5 animate-in zoom-in-95">
+          <div class="flex items-start gap-4">
+            <div class="w-11 h-11 rounded-xl bg-destructive/15 text-destructive flex items-center justify-center shrink-0">
+              <AlertTriangle class="w-6 h-6" />
+            </div>
+            <div class="space-y-1.5">
+              <h3 id="logout-dialog-title" class="text-lg font-bold text-foreground leading-snug">
+                ¿Cerrar sesión activa?
+              </h3>
+              <p class="text-sm text-muted-foreground leading-relaxed">
+                Tu sesión actual se invalidará en este y todos tus navegadores abiertos. Tendrás que volver a autenticarte para gestionar tus reservas.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-2">
+            <Button
+              variant="outline"
+              class="rounded-xl"
+              :disabled="isLoggingOut"
+              @click="cancelLogout"
+            >
+              Cancelar
+            </Button>
+
+            <Button
+              variant="destructive"
+              class="rounded-xl gap-2 shadow-xs"
+              :disabled="isLoggingOut"
+              @click="handleLogout"
+            >
+              <Loader2 v-if="isLoggingOut" class="w-4 h-4 animate-spin" />
+              <LogOut v-else class="w-4 h-4" />
+              <span>{{ isLoggingOut ? 'Cerrando sesión...' : 'Confirmar salida' }}</span>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
 
     <!-- Footer -->
     <footer class="border-t border-border py-4 text-center text-xs text-muted-foreground">

@@ -9,12 +9,12 @@ export const ERROR_INVALID_NAME =
   'Los nombres/apellidos proporcionados contienen caracteres inválidos'
 export const ERROR_INVALID_EMAIL = 'Correo electrónico inválido'
 export const ERROR_INVALID_PASSWORD =
-  'La contraseña debe incluir al menos una mayúscula, minúscula, número y carácter especial opcional'
+  'La contraseña debe contener al menos 8 caracteres e incluir una mayúscula, minúscula, número y carácter especial opcional'
 export const ERROR_REQUIRED_FIELD = 'Este campo es requerido'
 
 const NAME_REGEX = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s'-]{1,50}$/
 const EMAIL_REGEX = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
-const PASSPORT_REGEX = /^[a-zA-Z0-9]{6,20}$/
+const PASSPORT_REGEX = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9]{6,20}$/
 
 export function validateRequired(value: string | undefined | null): ValidationResult {
   if (!value || !value.trim()) {
