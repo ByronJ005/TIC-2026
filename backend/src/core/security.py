@@ -27,13 +27,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def create_access_token(
     subject: Any,
-    role: str,
+    role: Optional[str] = None,
     expires_delta: Optional[timedelta] = None,
     jti: Optional[str] = None,
 ) -> str:
     """
     Creates a signed JWT access token containing subject (user_id),
-    role, jti (unique token identifier for blacklisting), and expiration time.
+    jti (unique token identifier for blacklisting), and expiration time.
     """
     now = datetime.now(timezone.utc)
     if expires_delta:
@@ -45,11 +45,12 @@ def create_access_token(
 
     to_encode: Dict[str, Any] = {
         "sub": str(subject),
-        "role": str(role),
         "jti": token_jti,
         "exp": int(expire.timestamp()),
         "iat": int(now.timestamp()),
     }
+    if role:
+        to_encode["role"] = str(role)
 
     return jwt.encode(
         to_encode,

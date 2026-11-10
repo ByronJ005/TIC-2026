@@ -12,7 +12,7 @@ def test_register_and_assign_pasajero(client):
     assert response.status_code == 201
     data = response.json()
     assert data["email"] == "andres.mendoza@example.com"
-    assert data["role"] == "PASAJERO"
+    assert "PASAJERO" in data["roles"]
     assert "password" not in data
     assert "hashed_password" not in data
 

@@ -48,9 +48,9 @@ class AuthService:
             last_name=data.last_name.strip(),
             email=normalized_email,
             hashed_password=hashed_pwd,
-            role=UserRole.PASAJERO,
             is_active=True,
         )
+        new_user.roles = [UserRole.PASAJERO]
 
         saved_user = self.user_repo.create(new_user)
         return UserResponse.model_validate(saved_user)
@@ -69,12 +69,11 @@ class AuthService:
         if not user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Usuario inactivo",
+                detail="Su cuenta se encuentra inactiva. Contacte al administrador",
             )
 
         token = create_access_token(
             subject=user.id,
-            role=user.role.value if hasattr(user.role, "value") else str(user.role),
         )
 
         return TokenResponse(access_token=token, token_type="bearer")
