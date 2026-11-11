@@ -1,4 +1,5 @@
-from typing import List, Optional, Tuple
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, selectinload
 from src.models.user import DocumentType, User, UserRole
@@ -86,4 +87,20 @@ class UserRepository:
         self.db.commit()
         self.db.refresh(user)
         return user
+
+    def update_profile(self, user: User, fields: Dict[str, Any]) -> User:
+        """Applies all given column values in a single transaction."""
+        for column_name, value in fields.items():
+            setattr(user, column_name, value)
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+
+    def update_password(
+        self, user: User, hashed_password: str, changed_at: datetime
+    ) -> User:
+        return self.update_profile(
+            user,
+            {"hashed_password": hashed_password, "password_changed_at": changed_at},
+        )
 

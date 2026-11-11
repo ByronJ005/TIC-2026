@@ -34,6 +34,24 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/forgot-password',
+    name: 'forgot-password',
+    component: () => import('@/views/ForgotPasswordView.vue'),
+    meta: {
+      guestOnly: true,
+      title: 'Recuperar contraseña - BoletoYa',
+    },
+  },
+  {
+    path: '/reset-password',
+    name: 'reset-password',
+    component: () => import('@/views/ResetPasswordView.vue'),
+    meta: {
+      guestOnly: true,
+      title: 'Nueva contraseña - BoletoYa',
+    },
+  },
+  {
     path: '/dashboard',
     component: DashboardLayout,
     meta: {
@@ -140,10 +158,9 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'perfil',
         name: 'perfil',
-        component: ModulePlaceholderView,
+        component: () => import('@/views/ProfileView.vue'),
         meta: {
           title: 'Perfil - BoletoYa',
-          description: 'Actualización de datos personales y preferencias de pasajero.',
           requiresRoles: ['PASAJERO'] as UserRole[],
         },
       },

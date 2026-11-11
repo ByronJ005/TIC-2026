@@ -16,6 +16,9 @@ export interface User {
   email: string
   roles: UserRole[]
   is_active: boolean
+  phone?: string | null
+  address?: string | null
+  birth_date?: string | null
   created_at: string
   updated_at: string
 }

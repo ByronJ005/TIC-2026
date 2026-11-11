@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import {
+  ERROR_ADDRESS_TOO_LONG,
+  ERROR_EMAIL_REQUIRED,
+  ERROR_INVALID_BIRTH_DATE,
+  ERROR_PHONE_LENGTH,
+  ERROR_PHONE_NOT_NUMERIC,
+  toIsoDate,
+  validateAddress,
+  validateBirthDate,
+  validatePhone,
+  validateRecoveryEmail,
   ERROR_INVALID_DOCUMENT,
   ERROR_INVALID_EMAIL,
   ERROR_INVALID_NAME,
@@ -163,6 +173,113 @@ describe('useFormValidation Composable', () => {
   describe('normalizeEmail', () => {
     it('should trim and lowercase email', () => {
       expect(normalizeEmail('  J.Perez@Email.COM  ')).toBe('j.perez@email.com')
+    })
+  })
+})
+
+describe('Profile and recovery validators', () => {
+  describe('validatePhone', () => {
+    it.each(['0991234567', '0000000000'])('accepts exactly 10 digits: %s', (phone) => {
+      expect(validatePhone(phone).isValid).toBe(true)
+    })
+
+    it.each(['', '   ', null, undefined])('accepts blank optional value: %s', (phone) => {
+      expect(validatePhone(phone).isValid).toBe(true)
+    })
+
+    it.each(['099123456', '09912345678', '1'])('reports length error for %s', (phone) => {
+      expect(validatePhone(phone)).toEqual({ isValid: false, errorMessage: ERROR_PHONE_LENGTH })
+    })
+
+    it.each(['09912345ab', '099-123-456', '099 123 4567', ' 0991234567', '+593991234', 'abc'])(
+      'reports non numeric error for %s',
+      (phone) => {
+        expect(validatePhone(phone)).toEqual({
+          isValid: false,
+          errorMessage: ERROR_PHONE_NOT_NUMERIC,
+        })
+      },
+    )
+  })
+
+  describe('validateAddress', () => {
+    it.each([1, 149, 150])('accepts %i characters', (length) => {
+      expect(validateAddress('a'.repeat(length)).isValid).toBe(true)
+    })
+
+    it('rejects 151 characters', () => {
+      expect(validateAddress('a'.repeat(151))).toEqual({
+        isValid: false,
+        errorMessage: ERROR_ADDRESS_TOO_LONG,
+      })
+    })
+
+    it('accepts blank values and ignores surrounding spaces when counting', () => {
+      expect(validateAddress('').isValid).toBe(true)
+      expect(validateAddress('    ').isValid).toBe(true)
+      expect(validateAddress(`  ${'a'.repeat(150)}  `).isValid).toBe(true)
+    })
+  })
+
+  describe('validateBirthDate', () => {
+    const today = new Date(2026, 10, 10) // 10 Nov 2026 (local)
+
+    it.each(['1900-01-01', '1985-06-15', '2026-11-09', '2026-11-10'])('accepts %s', (date) => {
+      expect(validateBirthDate(date, today).isValid).toBe(true)
+    })
+
+    it.each(['1899-12-31', '2026-11-11', '2026-12-31', '2027-01-01'])('rejects %s', (date) => {
+      expect(validateBirthDate(date, today)).toEqual({
+        isValid: false,
+        errorMessage: ERROR_INVALID_BIRTH_DATE,
+      })
+    })
+
+    it.each(['no-es-fecha', '2025-02-30', '31/12/1990', '2025-13-01', '1990-1-1'])(
+      'rejects malformed or impossible date %s',
+      (date) => {
+        expect(validateBirthDate(date, today).isValid).toBe(false)
+      },
+    )
+
+    it('accepts blank values because the field is optional', () => {
+      expect(validateBirthDate('', today).isValid).toBe(true)
+      expect(validateBirthDate(null, today).isValid).toBe(true)
+    })
+
+    it('computes the upper bound from the reference day, not from a fixed year', () => {
+      const futureReference = new Date(2030, 2, 1)
+
+      expect(validateBirthDate('2030-03-01', today).isValid).toBe(false)
+      expect(validateBirthDate('2030-03-01', futureReference).isValid).toBe(true)
+    })
+
+    it('uses the current date by default', () => {
+      const now = new Date()
+      const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+
+      expect(validateBirthDate(toIsoDate(now)).isValid).toBe(true)
+      expect(validateBirthDate(toIsoDate(tomorrow)).isValid).toBe(false)
+    })
+  })
+
+  describe('toIsoDate', () => {
+    it('pads month and day', () => {
+      expect(toIsoDate(new Date(2026, 0, 5))).toBe('2026-01-05')
+    })
+  })
+
+  describe('validateRecoveryEmail', () => {
+    it.each(['', '   ', null, undefined])('uses the required message for %s', (email) => {
+      expect(validateRecoveryEmail(email)).toEqual({
+        isValid: false,
+        errorMessage: ERROR_EMAIL_REQUIRED,
+      })
+    })
+
+    it('reuses the registration email format rules', () => {
+      expect(validateRecoveryEmail('sin-arroba').isValid).toBe(false)
+      expect(validateRecoveryEmail('ana@example.com').isValid).toBe(true)
     })
   })
 })

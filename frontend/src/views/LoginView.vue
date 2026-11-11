@@ -135,6 +135,12 @@ async function handleLogin() {
             <label for="password" class="block text-sm font-medium text-foreground">
               Contraseña
             </label>
+            <router-link
+              :to="{ name: 'forgot-password' }"
+              class="text-xs font-semibold text-primary hover:underline"
+            >
+              ¿Olvidaste tu contraseña?
+            </router-link>
           </div>
           <input
             id="password"

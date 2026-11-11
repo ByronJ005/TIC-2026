@@ -153,6 +153,99 @@ export function normalizeEmail(email: string): string {
   return (email || '').trim().toLowerCase()
 }
 
+export const MIN_BIRTH_DATE = '1900-01-01'
+export const PHONE_LENGTH = 10
+export const ADDRESS_MAX_LENGTH = 150
+
+export const ERROR_EMAIL_REQUIRED = 'Se requiere el correo electrónico'
+export const ERROR_MANDATORY_FIELDS_EMPTY = 'Los campos obligatorios no pueden quedar vacíos'
+export const ERROR_PHONE_LENGTH = 'El número de celular debe tener exactamente 10 dígitos'
+export const ERROR_PHONE_NOT_NUMERIC = 'El celular solo debe contener números'
+export const ERROR_ADDRESS_TOO_LONG = 'La dirección no puede exceder los 150 caracteres'
+export const ERROR_INVALID_BIRTH_DATE =
+  'La fecha de nacimiento debe estar entre 1900 y la fecha actual'
+export const ERROR_CURRENT_PASSWORD_REQUIRED = 'Debe ingresar su contraseña actual para cambiarla'
+export const ERROR_CURRENT_PASSWORD_WRONG = 'La contraseña actual es incorrecta'
+export const ERROR_NEW_PASSWORD_SAME_AS_CURRENT =
+  'La nueva contraseña debe ser diferente de la actual'
+export const ERROR_PASSWORD_CONFIRMATION_MISMATCH =
+  'La confirmación no coincide con la nueva contraseña'
+
+const VALID_RESULT: ValidationResult = { isValid: true, errorMessage: '' }
+const ISO_DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})$/
+const PHONE_DIGITS_REGEX = /^[0-9]+$/
+
+function invalid(errorMessage: string): ValidationResult {
+  return { isValid: false, errorMessage }
+}
+
+function isBlank(value: string | undefined | null): boolean {
+  return !value || !value.trim()
+}
+
+/** Phone is optional; non-numeric characters take precedence over length errors. */
+export function validatePhone(phone: string | undefined | null): ValidationResult {
+  if (isBlank(phone)) return VALID_RESULT
+  if (!PHONE_DIGITS_REGEX.test(phone as string)) return invalid(ERROR_PHONE_NOT_NUMERIC)
+  if ((phone as string).length !== PHONE_LENGTH) return invalid(ERROR_PHONE_LENGTH)
+  return VALID_RESULT
+}
+
+/** Address is optional and limited to 150 characters (without surrounding spaces). */
+export function validateAddress(address: string | undefined | null): ValidationResult {
+  if (isBlank(address)) return VALID_RESULT
+  if ((address as string).trim().length > ADDRESS_MAX_LENGTH) return invalid(ERROR_ADDRESS_TOO_LONG)
+  return VALID_RESULT
+}
+
+/** Formats a date as YYYY-MM-DD using the local calendar day (matches <input type="date">). */
+export function toIsoDate(date: Date): string {
+  const year = String(date.getFullYear()).padStart(4, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function isRealCalendarDate(year: number, month: number, day: number): boolean {
+  const candidate = new Date(year, month - 1, day)
+  return (
+    candidate.getFullYear() === year &&
+    candidate.getMonth() === month - 1 &&
+    candidate.getDate() === day
+  )
+}
+
+/**
+ * Birth date is optional and must be between 1900-01-01 and today (inclusive).
+ * The upper bound comes from `today`, never from a hardcoded year.
+ */
+export function validateBirthDate(
+  value: string | undefined | null,
+  today: Date = new Date(),
+): ValidationResult {
+  if (isBlank(value)) return VALID_RESULT
+
+  const match = ISO_DATE_REGEX.exec((value as string).trim())
+  if (!match) return invalid(ERROR_INVALID_BIRTH_DATE)
+
+  const [, year, month, day] = match
+  if (!isRealCalendarDate(Number(year), Number(month), Number(day))) {
+    return invalid(ERROR_INVALID_BIRTH_DATE)
+  }
+
+  const isoDate = (value as string).trim()
+  if (isoDate < MIN_BIRTH_DATE || isoDate > toIsoDate(today)) {
+    return invalid(ERROR_INVALID_BIRTH_DATE)
+  }
+  return VALID_RESULT
+}
+
+/** Email on the recovery screen: blank has its own message, then the registration format rules. */
+export function validateRecoveryEmail(email: string | undefined | null): ValidationResult {
+  if (isBlank(email)) return invalid(ERROR_EMAIL_REQUIRED)
+  return validateEmail(email)
+}
+
 export function useFormValidation() {
   return {
     validateRequired,
@@ -162,6 +255,11 @@ export function useFormValidation() {
     validateName,
     validateEmail,
     validatePassword,
+    validatePhone,
+    validateAddress,
+    validateBirthDate,
+    validateRecoveryEmail,
     normalizeEmail,
   }
 }
+
