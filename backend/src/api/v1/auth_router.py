@@ -1,18 +1,63 @@
 from typing import Any, Dict
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.orm import Session
 
 from src.core.dependencies import get_current_user, get_db, get_token_payload
 from src.models.user import User
 from src.schemas.auth_schemas import LoginRequest, TokenResponse
+from src.schemas.password_recovery_schemas import (
+    ForgotPasswordRequest,
+    MessageResponse,
+    ResetPasswordRequest,
+)
 from src.schemas.user_schemas import UserCreate, UserResponse
 from src.services.auth_service import AuthService
+from src.services.email_service import EmailSender, get_email_sender
+from src.services.password_recovery_service import PasswordRecoveryService
 
 router = APIRouter(prefix="/auth", tags=["Autenticación"])
 
 
 def get_auth_service(db: Session = Depends(get_db)) -> AuthService:
     return AuthService(db)
+
+
+def get_password_recovery_service(
+    db: Session = Depends(get_db),
+    email_sender: EmailSender = Depends(get_email_sender),
+) -> PasswordRecoveryService:
+    return PasswordRecoveryService(db, email_sender)
+
+
+@router.post(
+    "/forgot-password",
+    response_model=MessageResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Solicitud de enlace para restablecer la contraseña",
+)
+def forgot_password(
+    data: ForgotPasswordRequest,
+    background_tasks: BackgroundTasks,
+    recovery_service: PasswordRecoveryService = Depends(get_password_recovery_service),
+) -> MessageResponse:
+    result = recovery_service.request_reset(data)
+    if result.email:
+        # Sent after responding so response time does not reveal account state
+        background_tasks.add_task(recovery_service.deliver_email, result.email)
+    return result.response
+
+
+@router.post(
+    "/reset-password",
+    response_model=MessageResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Definir nueva contraseña a partir del enlace de restablecimiento",
+)
+def reset_password(
+    data: ResetPasswordRequest,
+    recovery_service: PasswordRecoveryService = Depends(get_password_recovery_service),
+) -> MessageResponse:
+    return recovery_service.reset_password(data)
 
 
 @router.post(

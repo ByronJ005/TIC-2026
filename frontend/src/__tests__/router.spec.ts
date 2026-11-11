@@ -54,4 +54,39 @@ describe('Router Navigation Guards & Role Protection', () => {
     await router.push('/dashboard/usuarios')
     expect(router.currentRoute.value.name).toBe('users')
   })
+
+  it('S3-01: /forgot-password and /reset-password are reachable without a session', async () => {
+    localStorage.removeItem(AUTH_TOKEN_KEY)
+
+    await router.push('/forgot-password')
+    expect(router.currentRoute.value.name).toBe('forgot-password')
+
+    await router.push('/reset-password?token=abc')
+    expect(router.currentRoute.value.name).toBe('reset-password')
+    expect(router.currentRoute.value.query.token).toBe('abc')
+  })
+
+  it('S3-02: authenticated users are redirected from recovery routes to /dashboard', async () => {
+    localStorage.setItem(AUTH_TOKEN_KEY, 'valid-test-token')
+
+    await router.push('/forgot-password')
+    expect(router.currentRoute.value.name).toBe('dashboard')
+
+    await router.push('/reset-password?token=abc')
+    expect(router.currentRoute.value.name).toBe('dashboard')
+  })
+
+  it('S3-03: /dashboard/perfil requires a session and is available for any user', async () => {
+    localStorage.removeItem(AUTH_TOKEN_KEY)
+    await router.push('/dashboard/perfil')
+    expect(router.currentRoute.value.name).toBe('login')
+
+    localStorage.setItem(AUTH_TOKEN_KEY, 'valid-test-token')
+    localStorage.setItem(
+      AUTH_USER_KEY,
+      JSON.stringify({ id: 1, roles: ['ADMIN_GENERAL', 'PASAJERO'] }),
+    )
+    await router.push('/dashboard/perfil')
+    expect(router.currentRoute.value.name).toBe('perfil')
+  })
 })

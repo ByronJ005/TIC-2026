@@ -14,5 +14,17 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     FRONTEND_URL: str = "http://localhost:5173"
 
+    # Password recovery
+    PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: int = 30
+
+    # SMTP (Mailtrap Email Sandbox during testing). No real credentials as defaults.
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 2525
+    SMTP_USERNAME: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_USE_TLS: bool = True
+    MAIL_FROM_ADDRESS: str = "no-reply@boletoya.local"
+    MAIL_FROM_NAME: str = "BoletoYa"
+
 
 settings = Settings()

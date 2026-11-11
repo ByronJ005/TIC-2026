@@ -154,7 +154,7 @@ async function handleRegister() {
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="space-y-1.5">
             <label for="doc-type" class="block text-sm font-medium text-foreground">
-              Tipo de doc.
+              Tipo de documento*
             </label>
             <select
               id="doc-type"
@@ -169,7 +169,7 @@ async function handleRegister() {
 
           <div class="sm:col-span-2 space-y-1.5">
             <label for="doc-number" class="block text-sm font-medium text-foreground">
-              Número de documento
+              Número de documento*
             </label>
             <input
               id="doc-number"
@@ -189,7 +189,7 @@ async function handleRegister() {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div class="space-y-1.5">
             <label for="first-name" class="block text-sm font-medium text-foreground">
-              Nombres
+              Nombres*
             </label>
             <input
               id="first-name"
@@ -206,7 +206,7 @@ async function handleRegister() {
 
           <div class="space-y-1.5">
             <label for="last-name" class="block text-sm font-medium text-foreground">
-              Apellidos
+              Apellidos*
             </label>
             <input
               id="last-name"
@@ -225,7 +225,7 @@ async function handleRegister() {
         <!-- Email -->
         <div class="space-y-1.5">
           <label for="reg-email" class="block text-sm font-medium text-foreground">
-            Correo electrónico
+            Correo electrónico*
           </label>
           <input
             id="reg-email"
@@ -244,7 +244,7 @@ async function handleRegister() {
         <!-- Password -->
         <div class="space-y-1.5">
           <label for="reg-password" class="block text-sm font-medium text-foreground">
-            Contraseña
+            Contraseña*
           </label>
           <input
             id="reg-password"

@@ -76,4 +76,38 @@ describe('useAuthStore', () => {
     expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBeNull()
     expect(localStorage.getItem(AUTH_USER_KEY)).toBeNull()
   })
+
+  it('S3-04: setToken replaces an existing token and persists it (password change keeps the session)', () => {
+    const store = useAuthStore()
+    store.setToken('old-token')
+
+    store.setToken('fresh-token')
+
+    expect(store.token).toBe('fresh-token')
+    expect(store.isAuthenticated).toBe(true)
+    expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBe('fresh-token')
+  })
+
+  it('S3-05: setUser stores optional profile fields', () => {
+    const store = useAuthStore()
+
+    store.setUser({
+      id: 1,
+      document_type: 'CEDULA',
+      document_number: '1710034065',
+      first_name: 'Ana',
+      last_name: 'Gomez',
+      email: 'ana@example.com',
+      roles: ['PASAJERO'],
+      is_active: true,
+      phone: '0991234567',
+      address: null,
+      birth_date: '1990-05-20',
+      created_at: '',
+      updated_at: '',
+    })
+
+    expect(store.user?.phone).toBe('0991234567')
+    expect(localStorage.getItem(AUTH_USER_KEY)).toContain('1990-05-20')
+  })
 })

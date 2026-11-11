@@ -1,4 +1,6 @@
-from datetime import datetime
+from datetime import date, datetime
+from typing import Optional
+
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 from src.models.user import DocumentType, UserRole
@@ -85,6 +87,9 @@ class UserResponse(BaseModel):
     email: str
     roles: list[UserRole]
     is_active: bool
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    birth_date: Optional[date] = None
     created_at: datetime
     updated_at: datetime
 

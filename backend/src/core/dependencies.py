@@ -4,6 +4,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from src.core.database import SessionLocal
+from src.core.datetime_utils import as_utc
 from src.core.security import decode_access_token
 from src.models.user import User
 from src.repositories.token_repository import TokenRepository
@@ -106,4 +107,27 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    if token_was_issued_before_password_change(payload, user):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Sesión revocada o inválida",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     return user
+
+
+def token_was_issued_before_password_change(
+    payload: Dict[str, Any], user: User
+) -> bool:
+    """
+    A password change revokes every session issued before it.
+    `iat` has second precision, so the comparison uses whole seconds.
+    """
+    password_changed_at = as_utc(user.password_changed_at)
+    if password_changed_at is None:
+        return False
+    issued_at = payload.get("iat")
+    if issued_at is None:
+        return True
+    return int(issued_at) < int(password_changed_at.timestamp())

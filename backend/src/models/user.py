@@ -2,6 +2,7 @@ import enum
 from sqlalchemy import (
     Boolean,
     Column,
+    Date,
     DateTime,
     Enum as SQLEnum,
     ForeignKey,
@@ -62,6 +63,11 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False, index=True)
     hashed_password = Column(String(255), nullable=False)
     is_active = Column(Boolean, nullable=False, default=True)
+    phone = Column(String(10), nullable=True)
+    address = Column(String(150), nullable=True)
+    birth_date = Column(Date, nullable=True)
+    # Sessions issued before this instant are rejected (see get_current_user)
+    password_changed_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(
         DateTime(timezone=True),
         nullable=False,
