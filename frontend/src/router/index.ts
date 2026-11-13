@@ -78,7 +78,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'cooperativas',
         name: 'cooperativas',
-        component: ModulePlaceholderView,
+        component: () => import('@/views/CooperativasView.vue'),
         meta: {
           title: 'Cooperativas - BoletoYa',
           description: 'Gestión de cooperativas afiliadas al terminal terrestre.',

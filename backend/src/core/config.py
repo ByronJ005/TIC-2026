@@ -26,5 +26,9 @@ class Settings(BaseSettings):
     MAIL_FROM_ADDRESS: str = "no-reply@boletoya.local"
     MAIL_FROM_NAME: str = "BoletoYa"
 
+    # Cooperative logos
+    LOGO_UPLOAD_DIR: str = "static/logos"
+    LOGO_MAX_SIZE_BYTES: int = 2 * 1024 * 1024  # 2 MB
+
 
 settings = Settings()

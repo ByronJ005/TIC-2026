@@ -19,9 +19,20 @@ interface RequestOptions {
 }
 
 let onUnauthorizedCallback: ((message: string) => void) | null = null
+let onCooperativaInactivaCallback: ((message: string) => void) | null = null
 
 export function setUnauthorizedHandler(callback: (message: string) => void) {
   onUnauthorizedCallback = callback
+}
+
+export function setCooperativaInactivaHandler(callback: (message: string) => void) {
+  onCooperativaInactivaCallback = callback
+}
+
+export function triggerCooperativaInactiva(message: string) {
+  if (onCooperativaInactivaCallback) {
+    onCooperativaInactivaCallback(message)
+  }
 }
 
 export async function apiClient<T>(
@@ -31,10 +42,15 @@ export async function apiClient<T>(
 ): Promise<T> {
   const token = localStorage.getItem(AUTH_TOKEN_KEY)
 
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData
+
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     Accept: 'application/json',
     ...options.headers,
+  }
+
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json'
   }
 
   if (token) {
@@ -62,7 +78,7 @@ export async function apiClient<T>(
   }
 
   if (options.body && method !== 'GET') {
-    fetchOptions.body = JSON.stringify(options.body)
+    fetchOptions.body = isFormData ? (options.body as FormData) : JSON.stringify(options.body)
   }
 
   let response: Response
@@ -98,6 +114,37 @@ export async function apiClient<T>(
     throw {
       status: 401,
       message: typeof detail === 'string' ? detail : 'Sesión expirada o no autorizada',
+      detail,
+    } as ApiError
+  }
+
+  // Handle 409 Conflict (e.g. COOPERATIVA_INACTIVA)
+  if (response.status === 409) {
+    let detail: unknown = null
+    let code: string | null = null
+    let message = 'La cooperativa ha sido desactivada'
+    try {
+      const data = (await response.json()) as { detail?: { code?: string; message?: string } | string }
+      detail = data.detail
+      if (typeof detail === 'object' && detail !== null && 'code' in detail) {
+        code = (detail as { code?: string }).code || null
+        message = (detail as { message?: string }).message || message
+      } else if (typeof detail === 'string') {
+        message = detail
+      }
+    } catch {
+      // ignore
+    }
+
+    if (code === 'COOPERATIVA_INACTIVA' || message.includes('desactivada')) {
+      if (onCooperativaInactivaCallback) {
+        onCooperativaInactivaCallback(message)
+      }
+    }
+
+    throw {
+      status: 409,
+      message,
       detail,
     } as ApiError
   }

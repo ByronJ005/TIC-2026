@@ -26,7 +26,19 @@ ERROR_CURRENT_PASSWORD_WRONG = "La contraseña actual es incorrecta"
 ERROR_NEW_PASSWORD_SAME_AS_CURRENT = "La nueva contraseña debe ser diferente de la actual"
 ERROR_PASSWORD_CONFIRMATION_MISMATCH = "La confirmación no coincide con la nueva contraseña"
 
+# Submodule 04 - Cooperativas
+ERROR_RUC_REQUIRED = "El RUC es obligatorio"
+ERROR_RUC_LENGTH_OR_FORMAT = "El RUC debe tener exactamente 13 dígitos numéricos"
+ERROR_RUC_INVALID_ALGORITHM = "El RUC ingresado no es válido según el estándar ecuatoriano"
+ERROR_COOP_NAME_EMPTY = "El nombre de la cooperativa no puede quedar vacío"
+ERROR_COOP_NAME_INVALID_CHARS = (
+    "El nombre solo puede contener letras, números, espacios, guiones medios y apóstrofes"
+)
+ERROR_COOP_NAME_TOO_LONG = "El nombre de la cooperativa no puede exceder los 100 caracteres"
+
 NAME_REGEX = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s'-]{1,50}$")
+COOPERATIVA_NAME_MAX_LENGTH = 100
+COOPERATIVA_NAME_REGEX = re.compile(r"^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñÜü\s'-]+$")
 EMAIL_REGEX = re.compile(
     r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 )
@@ -164,3 +176,90 @@ def normalize_email(email: str) -> str:
     if not email:
         return ""
     return email.strip().lower()
+
+
+def get_ruc_error(ruc: Optional[str]) -> Optional[str]:
+    """
+    Validates an Ecuadorian RUC and returns the appropriate error message,
+    or None when valid.
+    """
+    if is_blank(ruc):
+        return ERROR_RUC_REQUIRED
+
+    cleaned = ruc.strip()
+    if not cleaned.isdigit() or len(cleaned) != 13:
+        return ERROR_RUC_LENGTH_OR_FORMAT
+
+    province = int(cleaned[:2])
+    if province < 1 or (province > 24 and province != 30):
+        return ERROR_RUC_INVALID_ALGORITHM
+
+    third_digit = int(cleaned[2])
+
+    # Case 1: Persona Natural (0 <= third_digit <= 5)
+    if third_digit < 6:
+        # First 10 digits must be valid cédula
+        if not validate_ecuadorian_cedula(cleaned[:10]):
+            return ERROR_RUC_INVALID_ALGORITHM
+        # Establishment code must be >= 001
+        establishment = int(cleaned[10:])
+        if establishment < 1:
+            return ERROR_RUC_INVALID_ALGORITHM
+        return None
+
+    # Case 2: Sociedades Públicas (third_digit == 6)
+    elif third_digit == 6:
+        coefficients = [3, 2, 7, 6, 5, 4, 3, 2]
+        total_sum = sum(int(d) * c for d, c in zip(cleaned[:8], coefficients))
+        remainder = total_sum % 11
+        verifier = 0 if remainder == 0 else (11 - remainder)
+        if int(cleaned[8]) != verifier:
+            return ERROR_RUC_INVALID_ALGORITHM
+        # Establishment code (last 4 digits) must be >= 0001
+        establishment = int(cleaned[9:])
+        if establishment < 1:
+            return ERROR_RUC_INVALID_ALGORITHM
+        return None
+
+    # Case 3: Sociedades Privadas / Jurídicas (third_digit == 9)
+    elif third_digit == 9:
+        coefficients = [4, 3, 2, 7, 6, 5, 4, 3, 2]
+        total_sum = sum(int(d) * c for d, c in zip(cleaned[:9], coefficients))
+        remainder = total_sum % 11
+        verifier = 0 if remainder == 0 else (11 - remainder)
+        if int(cleaned[9]) != verifier:
+            return ERROR_RUC_INVALID_ALGORITHM
+        # Establishment code (last 3 digits) must be >= 001
+        establishment = int(cleaned[10:])
+        if establishment < 1:
+            return ERROR_RUC_INVALID_ALGORITHM
+        return None
+
+    else:
+        # third_digit in (7, 8) is invalid
+        return ERROR_RUC_INVALID_ALGORITHM
+
+
+def validate_ruc(ruc: str) -> bool:
+    """Returns True if the RUC is valid according to Ecuadorian rules."""
+    return get_ruc_error(ruc) is None
+
+
+def get_cooperativa_name_error(name: Optional[str]) -> Optional[str]:
+    """
+    Validates a cooperative name according to format and length constraints.
+    Returns the error message or None if valid.
+    """
+    if is_blank(name):
+        return ERROR_COOP_NAME_EMPTY
+    trimmed = name.strip()
+    if len(trimmed) > COOPERATIVA_NAME_MAX_LENGTH:
+        return ERROR_COOP_NAME_TOO_LONG
+    if not COOPERATIVA_NAME_REGEX.fullmatch(trimmed):
+        return ERROR_COOP_NAME_INVALID_CHARS
+    return None
+
+
+def validate_cooperativa_name(name: str) -> bool:
+    """Returns True if the cooperative name complies with length and character rules."""
+    return get_cooperativa_name_error(name) is None
