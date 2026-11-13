@@ -104,3 +104,75 @@ class UserRepository:
             {"hashed_password": hashed_password, "password_changed_at": changed_at},
         )
 
+    def list_eligible_cooperative_admins(
+        self, cooperativa_id: int, search: str = ""
+    ) -> List[User]:
+        """
+        Lists active users with role ADMIN_COOPERATIVA who either have no cooperative assigned
+        or are currently assigned to the given cooperativa_id.
+        """
+        from src.models.user import UserRoleAssociation
+
+        coop_filter = (
+            or_(
+                User.cooperativa_id.is_(None),
+                User.cooperativa_id == cooperativa_id,
+            )
+            if cooperativa_id is not None
+            else User.cooperativa_id.is_(None)
+        )
+
+        query = (
+            self.db.query(User)
+            .join(User.role_associations)
+            .filter(
+                UserRoleAssociation.role == UserRole.ADMIN_COOPERATIVA,
+                User.is_active.is_(True),
+                coop_filter,
+            )
+            .options(selectinload(User.role_associations))
+            .distinct()
+        )
+
+        cleaned_search = search.strip()
+        if cleaned_search:
+            pattern = f"%{cleaned_search}%"
+            query = query.filter(
+                or_(
+                    User.first_name.ilike(pattern),
+                    User.last_name.ilike(pattern),
+                    User.email.ilike(pattern),
+                    User.document_number.ilike(pattern),
+                )
+            )
+
+        return (
+            query.order_by(User.first_name.asc(), User.last_name.asc())
+            .all()
+        )
+
+    def get_cooperative_admins(self, cooperativa_id: int) -> List[User]:
+        """Returns all users assigned to the specified cooperative."""
+        return (
+            self.db.query(User)
+            .options(selectinload(User.role_associations))
+            .filter(User.cooperativa_id == cooperativa_id)
+            .order_by(User.first_name.asc(), User.last_name.asc())
+            .all()
+        )
+
+    def get_users_by_ids_for_update(self, user_ids: List[int]) -> List[User]:
+        """
+        Locks and retrieves users by IDs in ascending order to prevent deadlocks.
+        """
+        if not user_ids:
+            return []
+        return (
+            self.db.query(User)
+            .options(selectinload(User.role_associations))
+            .filter(User.id.in_(user_ids))
+            .order_by(User.id.asc())
+            .with_for_update()
+            .all()
+        )
+

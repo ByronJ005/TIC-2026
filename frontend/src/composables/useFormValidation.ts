@@ -12,7 +12,16 @@ export const ERROR_INVALID_PASSWORD =
   'La contraseña debe contener al menos 8 caracteres e incluir una mayúscula, minúscula, número y carácter especial opcional'
 export const ERROR_REQUIRED_FIELD = 'Este campo es requerido'
 
+export const ERROR_RUC_REQUIRED = 'El RUC es obligatorio'
+export const ERROR_RUC_LENGTH_OR_FORMAT = 'El RUC debe tener exactamente 13 dígitos numéricos'
+export const ERROR_RUC_INVALID_ALGORITHM = 'El RUC ingresado no es válido según el estándar ecuatoriano'
+export const ERROR_COOP_NAME_EMPTY = 'El nombre de la cooperativa no puede quedar vacío'
+export const ERROR_COOP_NAME_INVALID_CHARS =
+  'El nombre solo puede contener letras, números, espacios, guiones medios y apóstrofes'
+export const ERROR_COOP_NAME_TOO_LONG = 'El nombre de la cooperativa no puede exceder los 100 caracteres'
+
 const NAME_REGEX = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s'-]{1,50}$/
+const COOP_NAME_REGEX = /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñÜü\s'-]+$/
 const EMAIL_REGEX = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
 const PASSPORT_REGEX = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9]{6,20}$/
 
@@ -246,6 +255,80 @@ export function validateRecoveryEmail(email: string | undefined | null): Validat
   return validateEmail(email)
 }
 
+export function validateCooperativaName(name: string | undefined | null): ValidationResult {
+  if (isBlank(name)) return invalid(ERROR_COOP_NAME_EMPTY)
+  const trimmed = (name as string).trim()
+  if (trimmed.length > 100) return invalid(ERROR_COOP_NAME_TOO_LONG)
+  if (!COOP_NAME_REGEX.test(trimmed)) return invalid(ERROR_COOP_NAME_INVALID_CHARS)
+  return VALID_RESULT
+}
+
+export function validateEcuadorianRuc(ruc: string | undefined | null): ValidationResult {
+  if (isBlank(ruc)) return invalid(ERROR_RUC_REQUIRED)
+  const cleanRuc = (ruc as string).trim()
+  if (!/^\d{13}$/.test(cleanRuc)) return invalid(ERROR_RUC_LENGTH_OR_FORMAT)
+
+  const province = parseInt(cleanRuc.substring(0, 2), 10)
+  if (province < 1 || (province > 24 && province !== 30)) {
+    return invalid(ERROR_RUC_INVALID_ALGORITHM)
+  }
+
+  const thirdDigit = parseInt(cleanRuc.charAt(2), 10)
+
+  // 1. Persona natural (0-5)
+  if (thirdDigit < 6) {
+    const cedulaValidation = validateEcuadorianCedula(cleanRuc.substring(0, 10))
+    if (!cedulaValidation.isValid) {
+      return invalid(ERROR_RUC_INVALID_ALGORITHM)
+    }
+    const establishment = parseInt(cleanRuc.substring(10), 10)
+    if (establishment < 1) {
+      return invalid(ERROR_RUC_INVALID_ALGORITHM)
+    }
+    return VALID_RESULT
+  }
+
+  // 2. Sociedades públicas (6)
+  if (thirdDigit === 6) {
+    const coefficients = [3, 2, 7, 6, 5, 4, 3, 2]
+    let totalSum = 0
+    for (let i = 0; i < 8; i++) {
+      totalSum += parseInt(cleanRuc.charAt(i), 10) * (coefficients[i] ?? 0)
+    }
+    const remainder = totalSum % 11
+    const verifier = remainder === 0 ? 0 : 11 - remainder
+    if (parseInt(cleanRuc.charAt(8), 10) !== verifier) {
+      return invalid(ERROR_RUC_INVALID_ALGORITHM)
+    }
+    const establishment = parseInt(cleanRuc.substring(9), 10)
+    if (establishment < 1) {
+      return invalid(ERROR_RUC_INVALID_ALGORITHM)
+    }
+    return VALID_RESULT
+  }
+
+  // 3. Sociedades privadas / jurídicas (9)
+  if (thirdDigit === 9) {
+    const coefficients = [4, 3, 2, 7, 6, 5, 4, 3, 2]
+    let totalSum = 0
+    for (let i = 0; i < 9; i++) {
+      totalSum += parseInt(cleanRuc.charAt(i), 10) * (coefficients[i] ?? 0)
+    }
+    const remainder = totalSum % 11
+    const verifier = remainder === 0 ? 0 : 11 - remainder
+    if (parseInt(cleanRuc.charAt(9), 10) !== verifier) {
+      return invalid(ERROR_RUC_INVALID_ALGORITHM)
+    }
+    const establishment = parseInt(cleanRuc.substring(10), 10)
+    if (establishment < 1) {
+      return invalid(ERROR_RUC_INVALID_ALGORITHM)
+    }
+    return VALID_RESULT
+  }
+
+  return invalid(ERROR_RUC_INVALID_ALGORITHM)
+}
+
 export function useFormValidation() {
   return {
     validateRequired,
@@ -259,6 +342,8 @@ export function useFormValidation() {
     validateAddress,
     validateBirthDate,
     validateRecoveryEmail,
+    validateCooperativaName,
+    validateEcuadorianRuc,
     normalizeEmail,
   }
 }

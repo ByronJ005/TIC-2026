@@ -66,6 +66,12 @@ class User(Base):
     phone = Column(String(10), nullable=True)
     address = Column(String(150), nullable=True)
     birth_date = Column(Date, nullable=True)
+    cooperativa_id = Column(
+        Integer,
+        ForeignKey("cooperatives.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
     # Sessions issued before this instant are rejected (see get_current_user)
     password_changed_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(
@@ -90,6 +96,12 @@ class User(Base):
         "role_associations",
         "role",
         creator=lambda r: UserRoleAssociation(role=r),
+    )
+    cooperativa = relationship(
+        "Cooperativa",
+        back_populates="administradores",
+        foreign_keys=[cooperativa_id],
+        lazy="selectin",
     )
 
     __table_args__ = (
