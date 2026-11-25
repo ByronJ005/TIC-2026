@@ -20,6 +20,7 @@ interface RequestOptions {
 
 let onUnauthorizedCallback: ((message: string) => void) | null = null
 let onCooperativaInactivaCallback: ((message: string) => void) | null = null
+let onRecursoAjenoCallback: ((message: string) => void) | null = null
 
 export function setUnauthorizedHandler(callback: (message: string) => void) {
   onUnauthorizedCallback = callback
@@ -29,9 +30,19 @@ export function setCooperativaInactivaHandler(callback: (message: string) => voi
   onCooperativaInactivaCallback = callback
 }
 
+export function setRecursoAjenoHandler(callback: (message: string) => void) {
+  onRecursoAjenoCallback = callback
+}
+
 export function triggerCooperativaInactiva(message: string) {
   if (onCooperativaInactivaCallback) {
     onCooperativaInactivaCallback(message)
+  }
+}
+
+export function triggerRecursoAjeno(message: string) {
+  if (onRecursoAjenoCallback) {
+    onRecursoAjenoCallback(message)
   }
 }
 
@@ -114,6 +125,41 @@ export async function apiClient<T>(
     throw {
       status: 401,
       message: typeof detail === 'string' ? detail : 'Sesión expirada o no autorizada',
+      detail,
+    } as ApiError
+  }
+
+  // Handle 403 Forbidden (e.g. COOPERATIVA_ASIGNADA_INACTIVA, Recurso de otra cooperativa)
+  if (response.status === 403) {
+    let detail: unknown = null
+    let code: string | null = null
+    let message = 'No autorizado para este recurso'
+    try {
+      const data = (await response.json()) as { detail?: { code?: string; message?: string } | string }
+      detail = data.detail
+      if (typeof detail === 'object' && detail !== null && 'code' in detail) {
+        code = (detail as { code?: string }).code || null
+        message = (detail as { message?: string }).message || message
+      } else if (typeof detail === 'string') {
+        message = detail
+      }
+    } catch {
+      // ignore
+    }
+
+    if (code === 'COOPERATIVA_ASIGNADA_INACTIVA' || message.includes('Por el momento, su cooperativa se encuentra desactivada')) {
+      if (onCooperativaInactivaCallback) {
+        onCooperativaInactivaCallback(message)
+      }
+    } else if (message.includes('Recurso de otra cooperativa')) {
+      if (onRecursoAjenoCallback) {
+        onRecursoAjenoCallback(message)
+      }
+    }
+
+    throw {
+      status: 403,
+      message,
       detail,
     } as ApiError
   }

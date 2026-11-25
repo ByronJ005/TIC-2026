@@ -1,0 +1,126 @@
+{
+  "reviewed_on": "2026-11-22",
+  "country": "Ecuador",
+  "scope": "Catálogo de orígenes, destinos y paradas desde Loja. No crea rutas, frecuencias ni garantiza servicio directo vigente a cada punto.",
+  "excluded": ["El Cisne"],
+  "sources": {
+    "ant": "https://www.terminal-guayaquil.com/documentos/consolidado_nacional_de_rutas_de_transporte_inter_e_intraprovincial_22_07_2026.pdf",
+    "municipio": "https://www.loja.gob.ec/files/documentos/2026-03/0086-2026_ordenanza_alineacion_pdot_compressed-signed.pdf",
+    "cooperativa_loja": "https://www.cooperativaloja.com/horarios-coop-loja.php?agencia=agencialoja",
+    "viajeros": "https://www.ecuadorbus.com.ec/cooperativa-de-viajeros-internacional",
+    "yangana": "https://www.loja.gob.ec/node/172"
+  },
+  "notes": [
+    "Los grupos indican procedencia documental; la tabla localities solo recibe name e is_active.",
+    "Se omite Comunidades por ser una denominación genérica. Se unifican Empalme y El Empalme; Malacatos-Purunuma se separa en dos localidades.",
+    "Se normalizan abreviaturas y tildes; Changainina se registra como Changaimina. Los calificadores distinguen nombres geográficos ambiguos.",
+    "Loja se incluye como origen. Las localidades rurales pueden ser paradas intermedias; verificar recorridos y disponibilidad al configurar rutas."
+  ],
+  "groups": [
+    {
+      "province": "Loja",
+      "sources": ["ant"],
+      "names": [
+        "Loja", "Alamor", "Amaluza", "Bellavista (Saraguro)", "Bramaderos",
+        "Cariamanga", "Catacocha", "Catamayo", "Celén", "Celica",
+        "Chaguarpamba", "Changaimina", "Chiguango", "Chiriguala", "Colaisaca",
+        "El Empalme", "El Pindo (Chaguarpamba)", "El Prado", "El Tambo",
+        "Ganil", "Gonzanamá", "La Ceiba", "La Cera", "La Era", "La Merced",
+        "Larama", "Las Chinchas", "Las Limas", "Limón (Calvas)",
+        "Loma del Guando", "Loma del Oro", "Lucero", "Lujinuma", "Macará",
+        "Malacatos", "Manú", "Mater", "Mercadillo", "Nambacola", "Olmedo",
+        "Orianga", "Pénjamo", "Pigchig", "Pindal", "Playas (Paltas)", "Pózul",
+        "Punta de Piedra", "Purunuma", "Quilanga", "Quinara", "Sabiango",
+        "Sabanilla", "Sacapalca", "San Antonio de las Aradas", "San Lucas",
+        "San Pedro de la Bendita", "Santa Ana (Saraguro)", "Santa Rufina",
+        "Saraguro", "Selva Alegre", "Sozoranga", "Sunín", "Tangula", "Taquil",
+        "Tenta", "Urdaneta", "Utuana", "Velacruz", "Zambi", "Zapotillo"
+      ]
+    },
+    {
+      "province": "Loja",
+      "sources": ["municipio"],
+      "names": [
+        "Chantaco", "Chichaca", "Chuquiribamba", "Gonzabal", "Jimbilla",
+        "La Libertad", "Laguangora", "Las Juntas", "Las Lomas", "Liclla",
+        "Macainuma", "Pucala", "San José (Santiago)", "Santiago",
+        "Solamar", "Solamar Alto", "Tesalia"
+      ]
+    },
+    {
+      "province": "Loja",
+      "sources": ["cooperativa_loja", "yangana"],
+      "names": ["Vilcabamba", "Yangana"]
+    },
+    {
+      "province": "Azuay",
+      "sources": ["cooperativa_loja", "viajeros"],
+      "names": ["Cuenca", "Oña", "Camilo Ponce Enríquez"]
+    },
+    {
+      "province": "El Oro",
+      "sources": ["ant", "cooperativa_loja"],
+      "names": ["Arenillas", "Balsas", "Huaquillas", "Machala", "Piñas", "Portovelo", "Santa Rosa", "Zaruma"]
+    },
+    {
+      "province": "Zamora Chinchipe",
+      "sources": ["ant", "municipio", "cooperativa_loja"],
+      "names": ["Zamora", "Yantzaza", "Zumbi", "El Pangui", "Guayzimi", "Palanda", "Valladolid", "Zumba", "Yacuambi"]
+    },
+    {
+      "province": "Morona Santiago",
+      "sources": ["ant", "cooperativa_loja"],
+      "names": ["Gualaquiza", "Macas"]
+    },
+    {
+      "province": "Guayas",
+      "sources": ["cooperativa_loja"],
+      "names": ["Guayaquil", "Playas"]
+    },
+    {
+      "province": "Pichincha",
+      "sources": ["ant", "cooperativa_loja"],
+      "names": ["Quito"]
+    },
+    {
+      "province": "Tungurahua",
+      "sources": ["ant", "cooperativa_loja"],
+      "names": ["Ambato"]
+    },
+    {
+      "province": "Chimborazo",
+      "sources": ["cooperativa_loja"],
+      "names": ["Riobamba"]
+    },
+    {
+      "province": "Cotopaxi",
+      "sources": ["cooperativa_loja"],
+      "names": ["Latacunga"]
+    },
+    {
+      "province": "Santo Domingo de los Tsáchilas",
+      "sources": ["ant", "cooperativa_loja"],
+      "names": ["Santo Domingo"]
+    },
+    {
+      "province": "Los Ríos",
+      "sources": ["cooperativa_loja"],
+      "names": ["Quevedo"]
+    },
+    {
+      "province": "Manabí",
+      "sources": ["cooperativa_loja"],
+      "names": ["Manta"]
+    },
+    {
+      "province": "Santa Elena",
+      "sources": ["cooperativa_loja"],
+      "names": ["Montañita"]
+    },
+    {
+      "province": "Sucumbíos",
+      "sources": ["cooperativa_loja"],
+      "names": ["Lago Agrio", "Shushufindi"]
+    }
+  ]
+}

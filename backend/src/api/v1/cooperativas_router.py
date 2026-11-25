@@ -11,7 +11,7 @@ from fastapi import (
 from sqlalchemy.orm import Session
 from src.core.dependencies import get_db
 from src.core.permissions import require_role
-from src.models.user import User
+from src.models.user import User, UserRole
 from src.schemas.cooperativa_schemas import (
     AdministradorSummary,
     CooperativaAdministradoresUpdate,
@@ -96,9 +96,15 @@ def list_cooperativas(
 )
 def get_cooperativa(
     cooperativa_id: int,
-    current_user: User = Depends(require_role("ADMIN_GENERAL")),
+    current_user: User = Depends(require_role("ADMIN_GENERAL", "ADMIN_COOPERATIVA")),
     service: CooperativaService = Depends(get_coop_service),
 ) -> CooperativaResponse:
+    roles = {r.value if hasattr(r, "value") else str(r) for r in (current_user.roles or [])}
+    if UserRole.ADMIN_COOPERATIVA.value in roles and current_user.cooperativa_id != cooperativa_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Recurso de otra cooperativa",
+        )
     return service.get_cooperativa_by_id(cooperativa_id)
 
 

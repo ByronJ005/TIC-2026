@@ -104,6 +104,10 @@ class User(Base):
         lazy="selectin",
     )
 
+    @property
+    def cooperativa_name(self) -> Optional[str]:
+        return self.cooperativa.name if self.cooperativa else None
+
     __table_args__ = (
         UniqueConstraint(
             "document_type",

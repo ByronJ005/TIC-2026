@@ -329,6 +329,127 @@ export function validateEcuadorianRuc(ruc: string | undefined | null): Validatio
   return invalid(ERROR_RUC_INVALID_ALGORITHM)
 }
 
+// Submodule 05 - Rutas, Localidades y Notificaciones
+export const ERROR_ORIGIN_REQUIRED = 'El origen es obligatorio'
+export const ERROR_DESTINATION_REQUIRED = 'El destino es obligatorio'
+export const ERROR_DISTANCE_REQUIRED = 'La distancia es obligatoria'
+export const ERROR_TIME_REQUIRED = 'El tiempo estimado es obligatorio'
+export const ERROR_ROUTE_ORIGIN_DESTINATION_SAME = 'El origen y el destino deben ser diferentes'
+export const ERROR_ROUTE_STOP_EQUALS_ORIGIN_OR_DESTINATION =
+  'Una parada intermedia no puede ser igual al origen o al destino'
+export const ERROR_ROUTE_STOP_DUPLICATED = 'La localidad ya fue agregada como parada de esta ruta'
+export const ERROR_ROUTE_STOPS_EMPTY =
+  "Debe agregar al menos una parada intermedia o marcar la opción 'Solo las de origen y destino'"
+export const ERROR_ROUTE_DISTANCE_INVALID = 'La distancia debe ser un número mayor a 0'
+export const ERROR_ROUTE_TIME_INVALID =
+  'Ingrese un tiempo estimado válido. El tiempo total debe ser mayor a cero y los minutos deben estar entre 0 y 59'
+export const ERROR_LOCALITY_NAME_EMPTY = 'El nombre de la localidad no puede quedar vacío'
+export const ERROR_LOCALITY_NAME_TOO_LONG = 'El nombre de la localidad no puede exceder los 100 caracteres'
+export const ERROR_ROUTE_NAME_SUFFIX_TOO_LONG = 'El texto adicional del nombre no puede exceder los 30 caracteres'
+export const ERROR_ROUTE_DESCRIPTION_TOO_LONG = 'La descripción no puede exceder los 100 caracteres'
+
+export function validateLocalityName(name: string | undefined | null): ValidationResult {
+  if (!name || !name.trim()) {
+    return invalid(ERROR_LOCALITY_NAME_EMPTY)
+  }
+  const clean = name.trim().replace(/\s+/g, ' ')
+  if (clean.length > 100) {
+    return invalid(ERROR_LOCALITY_NAME_TOO_LONG)
+  }
+  return VALID_RESULT
+}
+
+export function validateRouteNameSuffix(suffix: string | undefined | null): ValidationResult {
+  if (!suffix) return VALID_RESULT
+  if (suffix.trim().length > 30) {
+    return invalid(ERROR_ROUTE_NAME_SUFFIX_TOO_LONG)
+  }
+  return VALID_RESULT
+}
+
+export function validateRouteDescription(desc: string | undefined | null): ValidationResult {
+  if (!desc) return VALID_RESULT
+  if (desc.trim().length > 100) {
+    return invalid(ERROR_ROUTE_DESCRIPTION_TOO_LONG)
+  }
+  return VALID_RESULT
+}
+
+export function validateRouteDistance(dist: number | string | undefined | null): ValidationResult {
+  if (dist === undefined || dist === null || dist === '') {
+    return invalid(ERROR_DISTANCE_REQUIRED)
+  }
+  const num = typeof dist === 'number' ? dist : parseFloat(String(dist))
+  if (isNaN(num) || num <= 0) {
+    return invalid(ERROR_ROUTE_DISTANCE_INVALID)
+  }
+  return VALID_RESULT
+}
+
+export function validateRouteTime(
+  hours: number | string | undefined | null,
+  minutes: number | string | undefined | null,
+): ValidationResult {
+  if (
+    (hours === undefined || hours === null || hours === '') &&
+    (minutes === undefined || minutes === null || minutes === '')
+  ) {
+    return invalid(ERROR_TIME_REQUIRED)
+  }
+  const h = hours ? parseInt(String(hours), 10) : 0
+  const m = minutes ? parseInt(String(minutes), 10) : 0
+
+  if (isNaN(h) || isNaN(m) || h < 0 || m < 0 || m > 59) {
+    return invalid(ERROR_ROUTE_TIME_INVALID)
+  }
+  const totalMinutes = h * 60 + m
+  if (totalMinutes <= 0 || totalMinutes > 5999) {
+    return invalid(ERROR_ROUTE_TIME_INVALID)
+  }
+  return VALID_RESULT
+}
+
+export function validateRouteOriginAndDestination(
+  originId: number | undefined | null,
+  destId: number | undefined | null,
+): ValidationResult {
+  if (!originId) return invalid(ERROR_ORIGIN_REQUIRED)
+  if (!destId) return invalid(ERROR_DESTINATION_REQUIRED)
+  if (originId === destId) return invalid(ERROR_ROUTE_ORIGIN_DESTINATION_SAME)
+  return VALID_RESULT
+}
+
+export function validateRouteStops(
+  originId: number | undefined | null,
+  destId: number | undefined | null,
+  onlyOriginDest: boolean,
+  stops: Array<{ locality_id: number; stop_order: number }> = [],
+): ValidationResult {
+  if (onlyOriginDest) return VALID_RESULT
+
+  if (!stops || stops.length === 0) {
+    return invalid(ERROR_ROUTE_STOPS_EMPTY)
+  }
+
+  const seen = new Set<number>()
+  for (const s of stops) {
+    if (!s.locality_id) {
+      return invalid(ERROR_ROUTE_STOPS_EMPTY)
+    }
+    if (originId && s.locality_id === originId) {
+      return invalid(ERROR_ROUTE_STOP_EQUALS_ORIGIN_OR_DESTINATION)
+    }
+    if (destId && s.locality_id === destId) {
+      return invalid(ERROR_ROUTE_STOP_EQUALS_ORIGIN_OR_DESTINATION)
+    }
+    if (seen.has(s.locality_id)) {
+      return invalid(ERROR_ROUTE_STOP_DUPLICATED)
+    }
+    seen.add(s.locality_id)
+  }
+  return VALID_RESULT
+}
+
 export function useFormValidation() {
   return {
     validateRequired,
@@ -344,6 +465,13 @@ export function useFormValidation() {
     validateRecoveryEmail,
     validateCooperativaName,
     validateEcuadorianRuc,
+    validateLocalityName,
+    validateRouteNameSuffix,
+    validateRouteDescription,
+    validateRouteDistance,
+    validateRouteTime,
+    validateRouteOriginAndDestination,
+    validateRouteStops,
     normalizeEmail,
   }
 }

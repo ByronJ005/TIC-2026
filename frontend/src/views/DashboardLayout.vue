@@ -22,6 +22,7 @@ import {
   X,
 } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
+import NotificationBell from '@/components/notifications/NotificationBell.vue'
 import { useAuthStore } from '@/stores/auth.store'
 import type { UserRole } from '@/services/auth.service'
 
@@ -218,6 +219,9 @@ const visibleModules = computed(() => {
       </div>
 
       <div class="flex items-center gap-3">
+        <!-- Notification Bell -->
+        <NotificationBell />
+
         <!-- User Badge & Roles -->
         <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted text-xs font-medium border border-border">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
