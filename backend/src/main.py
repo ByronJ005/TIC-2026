@@ -5,7 +5,11 @@ from fastapi.staticfiles import StaticFiles
 
 from src.api.v1.auth_router import router as auth_router
 from src.api.v1.cooperativas_router import router as cooperativas_router
+from src.api.v1.localidades_router import router as localidades_router
+from src.api.v1.notificaciones_router import router as notificaciones_router
 from src.api.v1.profile_router import router as profile_router
+from src.api.v1.rutas_cooperativa_router import router as rutas_cooperativa_router
+from src.api.v1.rutas_generales_router import router as rutas_generales_router, shared_router as rutas_shared_router
 from src.api.v1.users_router import router as users_router
 from src.core.config import settings
 
@@ -43,6 +47,11 @@ app.include_router(auth_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
 app.include_router(profile_router, prefix="/api/v1")
 app.include_router(cooperativas_router, prefix="/api/v1")
+app.include_router(localidades_router, prefix="/api/v1")
+app.include_router(notificaciones_router, prefix="/api/v1")
+app.include_router(rutas_generales_router, prefix="/api/v1")
+app.include_router(rutas_cooperativa_router, prefix="/api/v1")
+app.include_router(rutas_shared_router, prefix="/api/v1")
 
 
 @app.get("/api/v1/health", tags=["Salud"])

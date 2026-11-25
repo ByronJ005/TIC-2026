@@ -205,7 +205,7 @@ def test_require_active_cooperativa_dependency(db_session):
     with pytest.raises(HTTPException) as exc:
         require_active_cooperativa(user_with_active, db_session)
     assert exc.value.status_code == 403
-    assert "inactiva" in exc.value.detail
+    assert "inactiva" in str(exc.value.detail).lower()
 
 
 def test_concurrency_max_admins_limit(db_session, admin_user):

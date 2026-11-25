@@ -16,6 +16,8 @@ export interface User {
   email: string
   roles: UserRole[]
   is_active: boolean
+  cooperativa_id?: number | null
+  cooperativa_name?: string | null
   phone?: string | null
   address?: string | null
   birth_date?: string | null

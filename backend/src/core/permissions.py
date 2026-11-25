@@ -2,7 +2,10 @@ from typing import Callable
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from src.core.dependencies import get_current_user, get_db
-from src.models.user import User
+from src.models.user import User, UserRole
+
+CODE_COOPERATIVA_ASIGNADA_INACTIVA = "COOPERATIVA_ASIGNADA_INACTIVA"
+ERROR_COOPERATIVA_ASIGNADA_INACTIVA = "Por el momento, su cooperativa se encuentra desactivada"
 
 
 def require_role(*roles: str) -> Callable[[User], User]:
@@ -29,6 +32,30 @@ def require_role(*roles: str) -> Callable[[User], User]:
     return checker
 
 
+def require_own_cooperativa(
+    current_user: User = Depends(get_current_user),
+) -> Callable[[int], None]:
+    """
+    Dependency helper to enforce that ADMIN_COOPERATIVA users only access
+    resources of their own cooperative.
+    """
+    def checker(cooperativa_id: int):
+        user_roles_str = {
+            r.value if hasattr(r, "value") else str(r)
+            for r in (current_user.roles or [])
+        }
+        if UserRole.ADMIN_COOPERATIVA.value in roles_or_user(user_roles_str) and current_user.cooperativa_id != cooperativa_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Recurso de otra cooperativa",
+            )
+    return checker
+
+
+def roles_or_user(roles_set):
+    return roles_set
+
+
 def require_active_cooperativa(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -52,7 +79,10 @@ def require_active_cooperativa(
     if not coop or not coop.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="La cooperativa asignada se encuentra inactiva",
+            detail={
+                "code": CODE_COOPERATIVA_ASIGNADA_INACTIVA,
+                "message": ERROR_COOPERATIVA_ASIGNADA_INACTIVA,
+            },
         )
 
     return current_user

@@ -90,6 +90,8 @@ class UserResponse(BaseModel):
     phone: Optional[str] = None
     address: Optional[str] = None
     birth_date: Optional[date] = None
+    cooperativa_id: Optional[int] = None
+    cooperativa_name: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

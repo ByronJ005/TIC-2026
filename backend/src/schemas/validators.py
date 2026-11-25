@@ -1,6 +1,6 @@
 import re
 from datetime import date
-from typing import Optional
+from typing import Any, Optional
 
 MIN_BIRTH_YEAR = 1900
 PHONE_LENGTH = 10
@@ -263,3 +263,97 @@ def get_cooperativa_name_error(name: Optional[str]) -> Optional[str]:
 def validate_cooperativa_name(name: str) -> bool:
     """Returns True if the cooperative name complies with length and character rules."""
     return get_cooperativa_name_error(name) is None
+
+
+# Submodule 05 - Rutas, Localidades y Notificaciones
+ERROR_LOCALITY_NAME_EMPTY = "El nombre de la localidad no puede quedar vacío"
+ERROR_LOCALITY_NAME_TOO_LONG = "El nombre de la localidad no puede exceder los 100 caracteres"
+ERROR_ROUTE_NAME_SUFFIX_TOO_LONG = "El texto adicional del nombre no puede exceder los 30 caracteres"
+ERROR_ROUTE_DESCRIPTION_TOO_LONG = "La descripción no puede exceder los 100 caracteres"
+ERROR_ROUTE_DISTANCE_INVALID = "La distancia debe ser un número mayor a 0"
+ERROR_ROUTE_TIME_INVALID = (
+    "Ingrese un tiempo estimado válido. El tiempo total debe ser mayor a cero y los minutos deben estar entre 0 y 59"
+)
+ERROR_ROUTE_ORIGIN_DESTINATION_SAME = "El origen y el destino deben ser diferentes"
+ERROR_ROUTE_STOP_EQUALS_ORIGIN_OR_DESTINATION = "Una parada intermedia no puede ser igual al origen o al destino"
+ERROR_ROUTE_STOP_DUPLICATED = "La localidad ya fue agregada como parada de esta ruta"
+ERROR_ROUTE_STOPS_EMPTY = "Debe agregar al menos una parada intermedia o marcar la opción 'Solo las de origen y destino'"
+ERROR_ROUTE_DUPLICATED = "Ya existe una ruta general con el mismo origen, destino y distancia"
+ERROR_COOP_ROUTE_DUPLICATED = "Ya existe una ruta de su cooperativa con el mismo origen, destino y distancia"
+ERROR_ROUTE_GENERAL_INACTIVE = "La ruta general se encuentra desactivada por la administración del terminal"
+ERROR_ROUTE_ALREADY_ADOPTED = "La ruta general ya está asociada a la cooperativa"
+ERROR_ROUTE_ORIGIN_DEST_MUTATION_RESTRICTED = (
+    "El origen y el destino no pueden modificarse porque la ruta tiene asociaciones"
+)
+ERROR_COOP_DEACTIVATED_ROUTES = "Por el momento, su cooperativa se encuentra desactivada"
+
+LOCALITY_NAME_MAX_LENGTH = 100
+ROUTE_NAME_SUFFIX_MAX_LENGTH = 30
+ROUTE_DESCRIPTION_MAX_LENGTH = 100
+
+
+def normalize_locality_name(name: Optional[str]) -> str:
+    """Trims and collapses internal whitespaces of a locality name."""
+    if not name:
+        return ""
+    return " ".join(name.strip().split())
+
+
+def get_locality_name_error(name: Optional[str]) -> Optional[str]:
+    """Validates locality name. Must not be empty or exceed max length."""
+    normalized = normalize_locality_name(name)
+    if not normalized:
+        return ERROR_LOCALITY_NAME_EMPTY
+    if len(normalized) > LOCALITY_NAME_MAX_LENGTH:
+        return ERROR_LOCALITY_NAME_TOO_LONG
+    return None
+
+
+def get_route_name_suffix_error(suffix: Optional[str]) -> Optional[str]:
+    """Validates optional route name suffix."""
+    if suffix is None:
+        return None
+    trimmed = suffix.strip()
+    if len(trimmed) > ROUTE_NAME_SUFFIX_MAX_LENGTH:
+        return ERROR_ROUTE_NAME_SUFFIX_TOO_LONG
+    return None
+
+
+def get_route_description_error(desc: Optional[str]) -> Optional[str]:
+    """Validates optional route description."""
+    if desc is None:
+        return None
+    trimmed = desc.strip()
+    if len(trimmed) > ROUTE_DESCRIPTION_MAX_LENGTH:
+        return ERROR_ROUTE_DESCRIPTION_TOO_LONG
+    return None
+
+
+def get_route_distance_error(distance: Any) -> Optional[str]:
+    """Validates distance. Must be numeric and strictly > 0."""
+    if distance is None:
+        return ERROR_ROUTE_DISTANCE_INVALID
+    try:
+        val = float(distance)
+        if val <= 0:
+            return ERROR_ROUTE_DISTANCE_INVALID
+    except (TypeError, ValueError):
+        return ERROR_ROUTE_DISTANCE_INVALID
+    return None
+
+
+def get_route_time_error(estimated_minutes: Any) -> Optional[str]:
+    """
+    Validates estimated time in minutes.
+    Must be strictly > 0 and <= 5999 minutes (up to 99h 59m).
+    """
+    if estimated_minutes is None:
+        return ERROR_ROUTE_TIME_INVALID
+    try:
+        val = int(estimated_minutes)
+        if val <= 0 or val > 5999:
+            return ERROR_ROUTE_TIME_INVALID
+    except (TypeError, ValueError):
+        return ERROR_ROUTE_TIME_INVALID
+    return None
+

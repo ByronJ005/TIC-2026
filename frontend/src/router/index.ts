@@ -88,7 +88,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'rutas-generales',
         name: 'rutas-generales',
-        component: ModulePlaceholderView,
+        component: () => import('@/views/RutasGeneralesView.vue'),
         meta: {
           title: 'Rutas generales - BoletoYa',
           description: 'Administración de rutas interprovinciales y destinos base.',
@@ -108,7 +108,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'rutas-cooperativa',
         name: 'rutas-cooperativa',
-        component: ModulePlaceholderView,
+        component: () => import('@/views/RutasCooperativaView.vue'),
         meta: {
           title: 'Rutas de cooperativa - BoletoYa',
           description: 'Gestión de rutas asignadas a la cooperativa propia.',

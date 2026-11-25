@@ -30,72 +30,72 @@
 
 ### Criterios de Aceptación (Escenarios BDD)
 
-**CP-48: Registrar cooperativa con datos válidos**
+**CA-48: Registrar cooperativa con datos válidos**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas".
 * **Cuando** hace clic en "Nueva Cooperativa", ingresa un Nombre válido, un RUC ecuatoriano válido, llena los campos opcionales y confirma el registro.
 * **Entonces** el sistema registra la cooperativa en estado "Activa", muestra el mensaje "Cooperativa registrada exitosamente" y la añade a la lista de cooperativas.
 
-**CP-49: Validar algoritmo de RUC ecuatoriano**
+**CA-49: Validar algoritmo de RUC ecuatoriano**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" en el formulario de registro.
 * **Cuando** ingresa un número de RUC de 13 dígitos que no cumple con el algoritmo de validación de RUC de Ecuador y hace clic en "Guardar".
 * **Entonces** el sistema impide el registro y muestra el mensaje de error: "El RUC ingresado no es válido según el estándar ecuatoriano".
 
-**CP-50: Validar longitud y caracteres no numéricos del RUC**
+**CA-50: Validar longitud y caracteres no numéricos del RUC**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" en el formulario de registro.
 * **Cuando** ingresa un RUC con una longitud diferente a 13 dígitos o que contiene letras o caracteres especiales.
 * **Entonces** el sistema impide el envío y muestra el mensaje de error: "El RUC debe tener exactamente 13 dígitos numéricos".
 
-**CP-51: Validar unicidad del RUC en el registro**
+**CA-51: Validar unicidad del RUC en el registro**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" en el formulario de registro y ya existe una cooperativa registrada con dicho RUC.
 * **Cuando** intenta registrar una nueva cooperativa utilizando el mismo RUC existente.
 * **Entonces** el sistema impide el registro y muestra el mensaje de error: "Ya existe una cooperativa registrada con este RUC".
 
-**CP-52: Validar unicidad del Nombre de la cooperativa**
+**CA-52: Validar unicidad del Nombre de la cooperativa**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" en el formulario de registro y ya existe una cooperativa registrada con el nombre "Cooperativa Loja".
 * **Cuando** intenta registrar una nueva cooperativa con el mismo nombre (sin distinguir mayúsculas de minúsculas).
 * **Entonces** el sistema impide el registro y muestra el mensaje de error: "Ya existe una cooperativa registrada con este nombre".
 
-**CP-53: Validar caracteres permitidos en el Nombre de la cooperativa**
+**CA-53: Validar caracteres permitidos en el Nombre de la cooperativa**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" en el formulario de registro.
 * **Cuando** ingresa en el campo Nombre caracteres especiales no permitidos (distintos de letras, números, espacios, guiones medios o apóstrofes).
 * **Entonces** el sistema impide el registro y muestra el mensaje de error: "El nombre solo puede contener letras, números, espacios, guiones medios y apóstrofes".
 
-**CP-54: Validar longitud máxima en el Nombre de la cooperativa**
+**CA-54: Validar longitud máxima en el Nombre de la cooperativa**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" en el formulario de registro.
 * **Cuando** ingresa un nombre que supera los 100 caracteres permitidos.
 * **Entonces** el sistema impide el registro y muestra el mensaje de error: "El nombre de la cooperativa no puede exceder los 100 caracteres".
 
-**CP-55: Validar campos obligatorios vacíos o con solo espacios en blanco**
+**CA-55: Validar campos obligatorios vacíos o con solo espacios en blanco**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" en el formulario de registro.
 * **Cuando** deja los campos obligatorios (Nombre o RUC) vacíos o los completa únicamente con espacios en blanco y hace clic en "Guardar".
 * **Entonces** el sistema no envía el formulario y marca los campos requeridos con sus respectivos mensajes de error ("El nombre de la cooperativa no puede quedar vacío" y "El RUC es obligatorio").
 
-**CP-56: Actualizar información de una cooperativa existente**
+**CA-56: Actualizar información de una cooperativa existente**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" y abre el formulario de edición mediante el botón de engranaje de una cooperativa activa.
 * **Cuando** modifica los campos permitidos (Nombre, Dirección, Teléfono, Correo institucional o Logo) con datos válidos y confirma los cambios.
 * **Entonces** el sistema actualiza la información en la base de datos y muestra el mensaje: "Cooperativa actualizada exitosamente".
 
-**CP-57: Restringir campo Nombre vacío o con solo espacios en la edición**
+**CA-57: Restringir campo Nombre vacío o con solo espacios en la edición**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" editando una cooperativa existente.
 * **Cuando** borra el contenido del campo Nombre o ingresa exclusivamente espacios en blanco y hace clic en "Guardar cambios".
 * **Entonces** el sistema impide la actualización y muestra el mensaje de error: "El nombre de la cooperativa no puede quedar vacío".
 
-**CP-58: Verificar inmutabilidad del campo RUC en la edición**
+**CA-58: Verificar inmutabilidad del campo RUC en la edición**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" en la vista de edición de una cooperativa existente.
 * **Cuando** visualiza el campo RUC.
 * **Entonces** el sistema presenta el campo RUC en modo deshabilitado (solo lectura), impidiendo su edición.
 
-**CP-59: Desactivar (baja lógica) a una cooperativa activa**
+**CA-59: Desactivar (baja lógica) a una cooperativa activa**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" visualizando una cooperativa en estado "Activa".
 * **Cuando** selecciona la acción "Desactivar" y confirma la operación en el diálogo de confirmación.
 * **Entonces** el sistema actualiza el estado a "Desactivada" mediante borrado lógico, muestra el mensaje "Cooperativa desactivada exitosamente" y actualiza su estado visual en la interfaz.
 
-**CP-60: Reactivar una cooperativa desactivada**
+**CA-60: Reactivar una cooperativa desactivada**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" visualizando una cooperativa en estado "Desactivada".
 * **Cuando** selecciona la acción "Activar" y confirma la operación.
 * **Entonces** el sistema actualiza el estado de la cooperativa a "Activa", muestra el mensaje "Cooperativa activada exitosamente" y restablece su disponibilidad operativa.
 
-**CP-61: Intentar editar una cooperativa desactivada desde otra sesión**
+**CA-61: Intentar editar una cooperativa desactivada desde otra sesión**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" e intenta acceder a la edición o guardar cambios de una cooperativa que fue desactivada previamente en otra sesión concurrente.
 * **Cuando** el sistema detecta que la cooperativa ya no se encuentra activa.
 * **Entonces** el sistema deniega la operación, redirige al usuario a la pantalla de Inicio y muestra el mensaje: "La cooperativa ha sido desactivada".
@@ -119,17 +119,17 @@
 
 ### Criterios de Aceptación (Escenarios BDD)
 
-**CP-62: Asignar administradores de cooperativa desde el modal de gestión**
+**CA-62: Asignar administradores de cooperativa desde el modal de gestión**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" en la vista de edición de una cooperativa activa y pulsa "Gestionar administradores".
 * **Cuando** en el modal selecciona uno o más usuarios de la lista de elegibles (hasta un máximo de 3) y hace clic en "Guardar".
 * **Entonces** el sistema vincula a los usuarios seleccionados con la cooperativa, muestra el mensaje "Administradores asignados exitosamente" y refleja sus nombres en la sección "Personal de cooperativa".
 
-**CP-63: Bloquear selección al alcanzar el límite de 3 administradores**
+**CA-63: Bloquear selección al alcanzar el límite de 3 administradores**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" dentro del modal "Gestionar administradores".
 * **Cuando** selecciona 3 usuarios en la lista.
 * **Entonces** el sistema deshabilita las casillas de selección del resto de usuarios disponibles en el modal, impidiendo seleccionar más del límite permitido.
 
-**CP-64: Desvincular a un Administrador de la cooperativa**
+**CA-64: Desvincular a un Administrador de la cooperativa**
 * **Dado** que el Administrador se encuentra en la pantalla del módulo "Cooperativas" en la sección "Personal de cooperativa" de una cooperativa con administradores asignados.
 * **Cuando** elimina a uno de los administradores de la lista y confirma los cambios.
 * **Entonces** el sistema retira la vinculación del usuario con la cooperativa, mantiene el rol `ADMIN_COOPERATIVA` del usuario dejándolo disponible para futuras asignaciones, y muestra el mensaje: "Administrador desvinculado exitosamente".
